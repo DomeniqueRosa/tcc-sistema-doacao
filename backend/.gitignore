@@ -1,0 +1,29 @@
+# Compilação Maven
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+
+# Compilação Gradle
+.gradle
+/build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDEs (Eclipse, STS, VS Code, IntelliJ)
+.classpath
+.project
+.settings/
+.vscode/
+bin/
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Logs e Sistema Operacional
+*.log
+.DS_Store
+Thumbs.db
+
+
+help.md
+

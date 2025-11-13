@@ -1,0 +1,28 @@
+# Compilação e Dependências
+/node_modules
+/dist
+/out-tsc
+/bazel-out
+
+# Cache do Angular e Builds
+/.angular/
+/.angular/cache
+/.sass-cache
+
+# IDEs e Editores (VS Code, IntelliJ, etc)
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Logs e Sistema Operacional
+npm-debug.log
+yarn-error.log
+.DS_Store
+Thumbs.db
+
+# Ambientes Locais (Opcional: descomente se tiver senhas no environment.ts)
+# src/environments/environment.ts
