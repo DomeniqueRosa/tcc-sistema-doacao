@@ -12,4 +12,4 @@ Antes de começar, certifique-se de ter instalado na sua máquina:
 - **Java JDK 21**
 - **Node.js** (Versão  24 LTS recomendada)
 - **Angular CLI 20** (Instale globalmente com: `npm install -g @angular/cli`)
-- **Mysql 
+- **Mysql** 
