@@ -1,0 +1,52 @@
+<div class="center">
+
+  <form [formGroup]="addressForm" novalidate (ngSubmit)="onSubmit()">
+    <mat-card class="shipping-card">
+      <mat-card-header>
+      <mat-card-title class="mat-card-title">Doação Solicitaria <br>Seja Bem-Vindo</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Nome" formControlName="nome">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="E-mail" formControlName="email">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="CPF" formControlName="cpf">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Senha" formControlName="senha">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <mat-form-field class="full-width">
+            <input matInput placeholder="Repetir senha" formControlName="repetir_senha">
+          </mat-form-field>
+        </div>
+      </div>
+     
+      
+    </mat-card-content>
+    <mat-card-actions>
+      <button matButton="filled" color="primary" type="submit" class="btn-full">Submit</button>
+    </mat-card-actions>
+  </mat-card>
+</form>
+</div>
