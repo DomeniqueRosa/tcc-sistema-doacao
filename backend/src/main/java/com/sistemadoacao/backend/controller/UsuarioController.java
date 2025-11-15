@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.service.UsuarioService;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+
 
 
 
