@@ -1,2 +1,8 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+application.properties
+application.yml
+
+application-dev.properties
+application-prod.properties
+application-local.properties

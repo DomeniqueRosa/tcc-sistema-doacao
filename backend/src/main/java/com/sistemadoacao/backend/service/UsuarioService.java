@@ -12,23 +12,34 @@ import com.sistemadoacao.backend.repository.UsuarioRepository;
 public class UsuarioService {
     
     private final UsuarioRepository usuarioRepository;
+    private final EmailService emailService;
     
    
-    public UsuarioService(UsuarioRepository usuarioRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, EmailService emailService) {
         this.usuarioRepository = usuarioRepository;
+        this.emailService = emailService;
     }
 
     public Usuario saveUsuario(Usuario usuario) {
 
         // TODO
         //colocar validações aqui se existe usuário com mesmo email, etc
-        Usuario novo = new Usuario();
-        novo.setNome(usuario.getNome());
-        novo.setCpf(usuario.getCpf());
-        novo.setEmail(usuario.getEmail());
-        // TODO: encryptar a senha
-        // TODO: adc tratamento de senha
-        novo.setSenha(usuario.getSenha());
+
+        try {
+            Usuario novo = new Usuario();
+            novo.setNome(usuario.getNome());
+            novo.setCpf(usuario.getCpf());
+            novo.setEmail(usuario.getEmail());
+            // TODO: encryptar a senha
+            // TODO: adc tratamento de senha
+            novo.setSenha(usuario.getSenha());
+            String assunto = "Cadastro realizado com sucesso!";
+            String texto = "Olá " + novo.getNome() + ",\n\nSeu cadastro no sistema de doações foi realizado com sucesso!\n\nObrigado por se juntar a nós.\n\nAtenciosamente,\nEquipe do Sistema de Doações";
+            emailService.enviarEmailCadastro(novo.getEmail(), assunto, texto);
+            
+        } catch (Exception e) {
+            System.out.println("Erro ao enviar email: " + e.getMessage());
+        }
 
         return usuarioRepository.save(usuario);
     }
