@@ -16,7 +16,7 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
     @Autowired
     private JavaMailSender mailSender;
 
-    public void enviarEmailSimples(String para, String assunto, String texto) {
+    public void enviarEmailCadastro(String para, String assunto, String texto) {
         
         try {
             SimpleMailMessage message = new SimpleMailMessage();
