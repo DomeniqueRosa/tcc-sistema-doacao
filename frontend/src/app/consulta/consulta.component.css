@@ -1,0 +1,19 @@
+.pesquisa-container {
+  margin: 20px 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 32px;
+}
+
+.campo-pesquisa {
+  width: 280px;
+}
+
+.full-width-table {
+  width: 100%;
+}
+
+.user {
+  font-size: 32px;
+}

@@ -1,25 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterOutlet } from '@angular/router';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { TesteService } from './services/teste.service';
+import { RouterOutlet, RouterLink } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, MatSlideToggleModule],
+  imports: [RouterOutlet, RouterLink, MatToolbarModule, MatIconModule],
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class AppComponent implements OnInit {
-  mensagem = '';
+export class AppComponent {
 
-  constructor(private testeService: TesteService) {}
-
-  ngOnInit(): void {
-    this.testeService.ping().subscribe({
-      next: msg => this.mensagem = msg,
-      error: err => this.mensagem = 'Erro ao conectar: ' + err.message
-    });
-  }
 }
