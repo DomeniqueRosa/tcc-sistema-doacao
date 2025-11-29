@@ -1,0 +1,26 @@
+mat-toolbar {
+  background-color: #f0f0f0 !important;
+  color: #333333;
+  justify-content: space-between;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.nome {
+  font-size: 20px;
+  align-items: center;
+  color: #333333;
+}
+
+.menu-links a {
+  color: #333333;
+  font-size: 14px;
+  margin-left: 15px;
+  text-decoration: none;
+}
+
+mat-toolbar a {
+  color: #333333;
+}

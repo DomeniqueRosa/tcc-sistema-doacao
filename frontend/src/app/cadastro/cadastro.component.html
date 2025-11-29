@@ -1,52 +1,87 @@
-<div class="center">
+<div fxlayout="row" fxLayoutAlign="center">
+    <div fxLayout="column" fxFlex="435px">
+            
+        <form class="mt-60" #clientesFrm (ngSubmit)="salvar()">
+        <mat-card class="custom-card-container">
+        <mat-card-header class="custom-card-header" style="display: flex; justify-content: center;">
+            <mat-card-title class="custom-card-title">Fazer Cadastro</mat-card-title>
+            <mat-card-subtitle style="display: flex; justify-content: center;">Seja Bem-vindo</mat-card-subtitle>
+        </mat-card-header>
+            <mat-card-content class="mt-20">
+                <div fxLayout="row" fxLayoutAlign="start" fxLayoutGap="16px"> 
+                    <div fxLayout="column" fxFlex="400px"> 
+                        <mat-form-field class="full-width">
+                            <mat-label>Nome: *</mat-label>
+                            <input type="text" 
+                                [(ngModel)]="usuario.nome"
+                                name="nome" 
+                                placeholder="Ex: João da Silva" matInput />
+    
+                        </mat-form-field>
+                    </div>
+                </div>
 
-  <form [formGroup]="addressForm" novalidate (ngSubmit)="onSubmit()">
-    <mat-card class="shipping-card">
-      <mat-card-header>
-      <mat-card-title class="mat-card-title">Doação Solicitaria <br>Seja Bem-Vindo</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <div class="row">
-        <div class="col">
-          <mat-form-field class="full-width">
-            <input matInput placeholder="Nome" formControlName="nome">
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <mat-form-field class="full-width">
-            <input matInput placeholder="E-mail" formControlName="email">
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <mat-form-field class="full-width">
-            <input matInput placeholder="CPF" formControlName="cpf">
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <mat-form-field class="full-width">
-            <input matInput placeholder="Senha" formControlName="senha">
-          </mat-form-field>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <mat-form-field class="full-width">
-            <input matInput placeholder="Repetir senha" formControlName="repetir_senha">
-          </mat-form-field>
-        </div>
-      </div>
-     
-      
-    </mat-card-content>
-    <mat-card-actions>
-      <button matButton="filled" color="primary" type="submit" class="btn-full">Submit</button>
-    </mat-card-actions>
-  </mat-card>
-</form>
+                <div fxLayout="row" fxLayoutAlign="start" fxLayoutGap="16px">
+                    <div fxLayout="column" fxFlex="400px"> 
+                    <mat-form-field class="full-width">
+                        <mat-label>Email: *</mat-label>
+                        <input type="email"
+                            [(ngModel)]="usuario.email"
+                            name="email"
+                            placeholder="Digite seu email" matInput />
+                    </mat-form-field>
+                    </div>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start" fxLayoutGap="16px">
+                    <div fxLayout="column" fxFlex="400px"> 
+                    <mat-form-field class="full-width">
+                        <mat-label>CPF: *</mat-label>
+                        <input type="text" 
+                             [(ngModel)]="usuario.cpf"
+                             name="cpf"
+                             placeholder="Digite seu CPF" matInput />
+                    </mat-form-field>
+                    </div>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start" fxLayoutGap="16px">
+                    <div fxLayout="column" fxFlex="400px"> 
+                    <mat-form-field class="full-width">
+                        <mat-label>Senha: *</mat-label>
+                        <input type="password"
+                            [(ngModel)]="usuario.senha"
+                            name="senha"
+                            placeholder="Digite sua senha" matInput />
+                    </mat-form-field>
+                    </div>
+                </div>
+
+                <div fxLayout="row" fxLayoutAlign="start" fxLayoutGap="16px">
+                    <div fxLayout="column" fxFlex="400px">
+                    <mat-form-field class="full-width">
+                        <mat-label>Repetir Senha: *</mat-label>
+                        <input type="password" 
+                            [(ngModel)]="usuario.senhaConfirmacao"
+                            name="senhaConfirmacao"
+                            placeholder="Confirme sua senha" matInput />
+                        </mat-form-field>
+                    </div>
+                </div>
+
+            </mat-card-content>
+
+            <mat-card-actions style="display: flex; justify-content: center;">
+                <button mat-flat-button color="primary" fxFlex="400px" type="submit">
+                    Cadastrar
+                </button>
+            </mat-card-actions>
+
+            <mat-card-actions style="display: flex; justify-content: center;">
+                <mat-card-subtitle>Já possui uma conta? <a routerLink="/login">Login</a></mat-card-subtitle>
+            </mat-card-actions>
+
+        </mat-card>
+        </form>
+    </div>
 </div>

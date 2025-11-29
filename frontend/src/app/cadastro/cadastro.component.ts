@@ -1,43 +1,36 @@
-import { Component, inject } from '@angular/core';
-
-import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatSelectModule } from '@angular/material/select';
-import { MatRadioModule } from '@angular/material/radio';
+import { Component, ViewChild } from '@angular/core'; // Adicionar ViewChild
+import { FlexLayoutModule} from '@angular/flex-layout';
 import { MatCardModule } from '@angular/material/card';
-
+import { MatFormFieldModule } from '@angular/material/form-field';
+import {MatInputModule} from "@angular/material/input";
+import {FormsModule, NgForm} from "@angular/forms"; // Adicionar NgForm
+import {MatButtonModule} from '@angular/material/button';
+import { Usuario } from './usuario';
 
 @Component({
   selector: 'app-cadastro',
+  standalone: true,
   templateUrl: './cadastro.component.html',
   styleUrl: './cadastro.component.css',
-  imports: [
-    MatInputModule,
-    MatButtonModule,
-    MatSelectModule,
-    MatRadioModule,
-    MatCardModule,
-    ReactiveFormsModule
-  ]
+  imports: [ FlexLayoutModule, 
+             MatCardModule,
+             FormsModule, 
+             MatFormFieldModule, 
+             MatInputModule,
+             MatButtonModule,
+           ],
 })
+
 export class CadastroComponent {
-  private fb = inject(FormBuilder);
-  addressForm = this.fb.group({
+  @ViewChild('clientesFrm') clientesForm!: NgForm;
+
+  usuario = Usuario.novoUsuario();
+
+  salvar(){
+    console.log("Dados Usuario: ", this.usuario);    
+    this.usuario = Usuario.novoUsuario(); 
     
-    nome: [null, Validators.required],
-    email: [null, Validators.required],
-    cpf: [null, Validators.required],
-    senha: [null, Validators.required],
-    repetir_senha: [null, Validators.required],
-
-  });
-
-  hasUnitNumber = false;
-
-  
-
-  onSubmit(): void {
-    alert('Thanks!');
+    this.clientesForm.resetForm(); 
   }
 }
+
