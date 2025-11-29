@@ -1,7 +1,7 @@
 <div fxlayout="row" fxLayoutAlign="center">
     <div fxLayout="column" fxFlex="435px">
             
-        <form class="mt-60" #clientesFrm (ngSubmit)="salvar()">
+        <form class="mt-60" #clientesFrm="ngForm" (ngSubmit)="salvar()">
         <mat-card class="custom-card-container">
         <mat-card-header class="custom-card-header" style="display: flex; justify-content: center;">
             <mat-card-title class="custom-card-title">Fazer Cadastro</mat-card-title>
