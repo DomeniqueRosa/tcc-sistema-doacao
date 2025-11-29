@@ -30,6 +30,7 @@ public class UsuarioService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
     @Transactional
     public Usuario saveUsuario(Usuario usuario) {
         Usuario novo = new Usuario();
