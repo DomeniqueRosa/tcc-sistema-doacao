@@ -106,7 +106,7 @@
                 </mat-card-content>
 
                 <mat-card-actions style="display: flex; justify-content: center;">
-                    <button mat-flat-button color="primary" fxFlex="400px" type="submit">
+                    <button mat-flat-button color="primary" fxFlex="400px" type="submit" [disabled]="clientesFrm.invalid">
                         Cadastrar
                     </button>
                 </mat-card-actions>
