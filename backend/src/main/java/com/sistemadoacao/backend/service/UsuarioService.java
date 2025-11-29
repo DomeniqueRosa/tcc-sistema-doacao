@@ -54,12 +54,55 @@ public class UsuarioService {
         } catch (Exception e) {
             logger.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
-        logger.info("Salvando novo usuário: {}", usuario.getEmail(), usuario.getSenha());
+        logger.info("Salvando novo usuário: {}", usuario.getEmail());
         return novo;
     }
 
     public List<Usuario> getAllUsuarios() {
         return usuarioRepository.findAll();
+    }
+
+    public Usuario getUsuarioById(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+    }
+
+   
+    @Transactional
+    public Usuario updateUsuario(Long id, Usuario usuarioAtualizado) {
+        
+        Usuario usuarioExistente = getUsuarioById(id);
+
+        if (!usuarioExistente.getEmail().equals(usuarioAtualizado.getEmail()) && 
+            usuarioRepository.existsByEmail(usuarioAtualizado.getEmail())) {
+            throw new RuntimeException("Este e-mail já está em uso por outro usuário.");
+        }
+
+
+        usuarioExistente.setNome(usuarioAtualizado.getNome());
+        usuarioExistente.setEmail(usuarioAtualizado.getEmail());
+        usuarioExistente.setCpf(usuarioAtualizado.getCpf());
+
+        return usuarioRepository.save(usuarioExistente);
+    }
+
+    public void deleteUsuario(Long id) {
+        usuarioRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void alterarSenha(Long id, String senhaAtual, String novaSenha) {
+        
+        Usuario usuario = getUsuarioById(id);
+        // Verifica se a senha atual está correta
+        if (!passwordEncoder.matches(senhaAtual, usuario.getSenha())) {
+            throw new RuntimeException("A senha atual informada está incorreta.");
+        }
+
+        usuario.setSenha(passwordEncoder.encode(novaSenha));
+        usuarioRepository.save(usuario);
+        
+        logger.info("Senha alterada com sucesso para o usuário ID: {}", id);
     }
 
 }

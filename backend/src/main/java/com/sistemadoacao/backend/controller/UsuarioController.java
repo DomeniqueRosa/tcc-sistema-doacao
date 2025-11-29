@@ -14,9 +14,6 @@ import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.service.UsuarioService;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
-
-
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -29,18 +26,21 @@ public class UsuarioController {
 
     @PostMapping("/cadastrar")
     public ResponseEntity<Usuario> cadastrarUsuario(@RequestBody Usuario usuario) {
-        // cria usuario
-        Usuario novoUsuario = usuarioService.saveUsuario(usuario);
+        Usuario novoUsuario;
+        try {
+            novoUsuario = usuarioService.saveUsuario(usuario);
+
+        } catch (Exception e) {
+
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
-    @GetMapping("")
+    @GetMapping("/listar")
     public ResponseEntity<List<Usuario>> listarUsuarios() {
         return ResponseEntity.ok(usuarioService.getAllUsuarios());
     }
-    
-    
-    
 
 }
