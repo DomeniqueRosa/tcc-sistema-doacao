@@ -57,7 +57,7 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
 
-    @GetMapping("/listar")
+    @GetMapping()
     @Operation(summary = "Listar todos os usuários")
     @ApiResponse(responseCode = "200", description = "Usuários encontrados com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
@@ -65,7 +65,7 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.getAllUsuarios());
     }
 
-    @GetMapping("/listar/{id}")
+    @GetMapping("/{id}")
     @Operation(summary = "Listar usuário por ID")
     @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
@@ -84,7 +84,7 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar um usuário pelo ID")
+    @Operation(summary = "Deletar usuário pelo ID")
     @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
@@ -103,7 +103,7 @@ public class UsuarioController {
         }
     }
 
-    @PatchMapping("atualizar/{id}")
+    @PatchMapping("/{id}")
     @Operation(summary = "Atualizar usuário pelo ID", description = "Atualiza os dados de um usuário existente pelo ID.")
     @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso")
     @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
