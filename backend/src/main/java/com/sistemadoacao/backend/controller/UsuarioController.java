@@ -88,7 +88,7 @@ public class UsuarioController {
     @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    public ResponseEntity<Void> deletarUsuario(@PathParam(value = "") Long id) {
+    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
         boolean deleted = false;
         if (id == null) {
             return ResponseEntity.badRequest().build();
