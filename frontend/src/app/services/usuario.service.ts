@@ -18,4 +18,23 @@ export class UsuarioService {
     
     return this.http.post(this.apiUrl, usuario);
   }
+
+  listarTodos() : Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
+  }
+
+  excluir(id: string): Observable<void> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.delete<void>(url);
+  }
+
+  listarPorId(id: string): Observable<any> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.get<any>(url);
+  }
+
+  atualizar(id: string, usuario: any): Observable<any> {
+    const url = `${this.apiUrl}/${id}`;
+    return this.http.put<any>(url, usuario);
+  }
 }

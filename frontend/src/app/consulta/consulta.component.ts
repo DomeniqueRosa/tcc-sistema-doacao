@@ -8,6 +8,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { FlexLayoutModule } from '@angular/flex-layout';
+import { UsuarioService } from '../services/usuario.service';
 
 @Component({
   selector: 'app-consulta',
@@ -29,6 +30,14 @@ import { FlexLayoutModule } from '@angular/flex-layout';
 })
 export class ConsultaComponent {
 
+  dataSource: any;
+
+  constructor(private usuarioService: UsuarioService) { }
+
+  ngOnInit() {
+    this.dataSource = this.usuarioService.listarTodos();
+  }
+
   filtro: string = '';
 
   displayedColumns = [
@@ -41,11 +50,6 @@ export class ConsultaComponent {
     'acoes'
   ];
 
-  dataSource = [
-    { id: '001', grr: '202500000', nome: 'Maria', cpf: '00000000-00', dataCadastro: '2025-05-01', curso: 'TADS' },
-    { id: '002', grr: '202400000', nome: 'José', cpf: '00000000-00', dataCadastro: '2025-05-01', curso: '---' },
-    { id: '003', grr: '202300000', nome: 'Ana', cpf: '00000000-00', dataCadastro: '2025-05-01', curso: '---' },
-  ];
 
   editar(element: any) {
     console.log('Editar:', element);
@@ -53,6 +57,16 @@ export class ConsultaComponent {
 
   excluir(element: any) {
     console.log('Excluir:', element);
+    this.usuarioService.excluir(element.id).subscribe({
+      next: () => {
+        console.log('Usuário excluído com sucesso!');
+        // Atualizar a lista após exclusão
+        this.dataSource = this.usuarioService.listarTodos();
+      },
+      error: (err) => {
+        console.error('Erro ao excluir usuário:', err);
+      }
+    });
   }
 
 }
