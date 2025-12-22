@@ -16,6 +16,7 @@ import com.sistemadoacao.backend.service.UsuarioService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.websocket.server.PathParam;
@@ -41,7 +42,17 @@ public class UsuarioController {
 
     @PostMapping
     @Operation(summary = "Cadastrar usuário", description = "Cadastra um novo usuário no banco de dados com email unico. ")
-    @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso")
+    @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso", content = @Content(mediaType = "application/json", 
+    examples = @ExampleObject(
+        value = """
+                    {
+                        "nome": "João Silva",
+                        "cpf": "12345678900",
+                        "email": "joao@gmail.com",
+                        "senha": "senhaSegura123"
+                    }
+                    """
+    )))
     @ApiResponse(responseCode = "409", description = "Email já cadastrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<UsuarioDTO> cadastrarUsuario(@RequestBody Usuario usuario) {
