@@ -1,4 +1,6 @@
 package com.sistemadoacao.backend.dto;
+import java.time.LocalDate;
+
 import com.sistemadoacao.backend.model.Pessoa;
 // unico dto para representar os tipos de usuarios pois eles compartilham os mesmos atributos por enquanto
 public record UsuarioDTO(
@@ -6,7 +8,8 @@ public record UsuarioDTO(
     String nome,
     String cpf,
     String email,
-    String perfil
+    String perfil,
+    LocalDate dataCadastro
 ) {
     public UsuarioDTO(Pessoa pessoa) {
         this(
@@ -14,7 +17,8 @@ public record UsuarioDTO(
             pessoa.getNome(),
             pessoa.getCpf(),
             pessoa.getEmail(),
-            pessoa.getClass().getSimpleName()
+            pessoa.getClass().getSimpleName(),
+            pessoa.getDataCadastro()
         );
     }
 
