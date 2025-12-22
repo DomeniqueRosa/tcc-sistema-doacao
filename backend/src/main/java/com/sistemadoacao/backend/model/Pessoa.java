@@ -19,6 +19,5 @@ public abstract class Pessoa {
     private String cpf;
     private String email;
     private String senha;
-    private String senhaConfirmacao;
 
 }
