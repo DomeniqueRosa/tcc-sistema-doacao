@@ -73,7 +73,7 @@ public class UsuarioService {
 
    
     @Transactional
-    public UsuarioDTO updateUsuario(@NonNull Long id, Usuario usuarioAtualizado) {
+    public Usuario updateUsuario(@NonNull Long id, Usuario usuarioAtualizado) {
         
         Usuario usuarioExistente = getUsuarioById(id);
 
@@ -87,13 +87,20 @@ public class UsuarioService {
         usuarioExistente.setEmail(usuarioAtualizado.getEmail());
         usuarioExistente.setCpf(usuarioAtualizado.getCpf());
 
-        UsuarioDTO usuarioDTO = new UsuarioDTO(usuarioRepository.save(usuarioExistente));
+        Usuario usuario = usuarioRepository.save(usuarioExistente);
 
-        return usuarioDTO;
+        return usuario;
     }
 
-    public void deleteUsuario(@NonNull Long id) {
-        usuarioRepository.deleteById(id);
+    public boolean deleteUsuario(@NonNull Long id) {
+        if(usuarioRepository.existsById(id) == false) {
+            logger.warn("Tentativa de deletar usuário não existente: ID {}", id);
+            return false;
+        } else {
+            usuarioRepository.deleteById(id);
+            logger.info("Usuário deletado com sucesso: ID {}", id);
+            return true;
+        }
     }
 
     @Transactional
