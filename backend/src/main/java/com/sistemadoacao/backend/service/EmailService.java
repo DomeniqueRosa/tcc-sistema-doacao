@@ -16,19 +16,19 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
     @Autowired
     private JavaMailSender mailSender;
 
-    public void enviarEmailCadastro(String para, String assunto, String texto) {
+    public void enviarEmailCadastro(String email, String nome) {
         
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(para);
-            message.setSubject(assunto);
-            message.setText(texto);
+            message.setTo(email);
+            message.setSubject("Cadastro realizado com sucesso!");
+            message.setText("Olá " + nome + ",\n\nSeu cadastro no sistema de doações foi realizado com sucesso!\n\nObrigado por se juntar a nós.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
             mailSender.send(message);
 
-            logger.info("Email enviado com sucesso para " + para);
+            logger.info("Email enviado com sucesso para " + email);
             
         } catch (MailException e) {
-            logger.error("Erro ao enviar email para " + para + ": " + e.getMessage());
+            logger.error("Erro ao enviar email para " + email + ": " + e.getMessage());
         }
     }
 }

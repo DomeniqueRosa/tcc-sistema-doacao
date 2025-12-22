@@ -50,9 +50,7 @@ public class UsuarioService {
             novo.setSenha(senhaCript);
             usuarioRepository.save(novo);
           
-            String assunto = "Cadastro realizado com sucesso!";
-            String texto = "Olá " + novo.getNome() + ",\n\nSeu cadastro no sistema de doações foi realizado com sucesso!\n\nObrigado por se juntar a nós.\n\nAtenciosamente,\nEquipe do Sistema de Doações";
-            emailService.enviarEmailCadastro(novo.getEmail(), assunto, texto);
+            emailService.enviarEmailCadastro(novo.getEmail(), novo.getNome());
             
         } catch (Exception e) {
             logger.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
