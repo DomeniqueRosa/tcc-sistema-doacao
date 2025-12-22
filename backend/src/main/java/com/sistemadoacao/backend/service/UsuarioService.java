@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
 
+import org.springframework.lang.NonNull;
 import jakarta.transaction.Transactional;
 
 
@@ -63,14 +64,14 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public Usuario getUsuarioById(Long id) {
+    public Usuario getUsuarioById(@NonNull Long id) {
         return usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
     }
 
    
     @Transactional
-    public Usuario updateUsuario(Long id, Usuario usuarioAtualizado) {
+    public Usuario updateUsuario(@NonNull Long id, Usuario usuarioAtualizado) {
         
         Usuario usuarioExistente = getUsuarioById(id);
 
@@ -87,12 +88,12 @@ public class UsuarioService {
         return usuarioRepository.save(usuarioExistente);
     }
 
-    public void deleteUsuario(Long id) {
+    public void deleteUsuario(@NonNull Long id) {
         usuarioRepository.deleteById(id);
     }
 
     @Transactional
-    public void alterarSenha(Long id, String senhaAtual, String novaSenha) {
+    public void alterarSenha(@NonNull Long id, String senhaAtual, String novaSenha) {
         
         Usuario usuario = getUsuarioById(id);
         // Verifica se a senha atual está correta
