@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sistemadoacao.backend.dto.UsuarioDTO;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
 
@@ -33,7 +34,7 @@ public class UsuarioService {
 
     // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
     @Transactional
-    public Usuario saveUsuario(Usuario usuario) {
+    public UsuarioDTO saveUsuario(Usuario usuario) {
         Usuario novo = new Usuario();
 
         if (usuarioRepository.existsByEmail(usuario.getEmail())) {
@@ -57,21 +58,24 @@ public class UsuarioService {
             logger.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         logger.info("Salvando novo usuário: {}", usuario.getEmail());
-        return novo;
+        return new UsuarioDTO(novo);
     }
 
-    public List<Usuario> getAllUsuarios() {
-        return usuarioRepository.findAll();
+    public List<UsuarioDTO> getAllUsuarios() {
+        return usuarioRepository.findAll().stream()
+        .map(UsuarioDTO::new)
+        .toList();
     }
 
     public Usuario getUsuarioById(@NonNull Long id) {
-        return usuarioRepository.findById(id)
+        Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+        return usuario;
     }
 
    
     @Transactional
-    public Usuario updateUsuario(@NonNull Long id, Usuario usuarioAtualizado) {
+    public UsuarioDTO updateUsuario(@NonNull Long id, Usuario usuarioAtualizado) {
         
         Usuario usuarioExistente = getUsuarioById(id);
 
@@ -85,7 +89,9 @@ public class UsuarioService {
         usuarioExistente.setEmail(usuarioAtualizado.getEmail());
         usuarioExistente.setCpf(usuarioAtualizado.getCpf());
 
-        return usuarioRepository.save(usuarioExistente);
+        UsuarioDTO usuarioDTO = new UsuarioDTO(usuarioRepository.save(usuarioExistente));
+
+        return usuarioDTO;
     }
 
     public void deleteUsuario(@NonNull Long id) {
