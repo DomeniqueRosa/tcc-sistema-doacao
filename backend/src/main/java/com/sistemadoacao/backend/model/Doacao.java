@@ -30,17 +30,17 @@ public class Doacao {
     @Schema(example = "12345678900", description = "CPF do doador")
     private String cpfUsuario;
 
-    @Schema(example = "Teclado")
+    @Schema(example = "Teclado", description = "Tipo de equipamento doado")
     private Equipamento equipamento;
 
-    @Schema(example = "1")
+    @Schema(example = "1", description = "Quantidade de equipamentos doados")
     private Integer quantidade;
 
-    @Schema(example = "Equipamento em ótimo estado, pouco uso.")
+    @Schema(example = "Equipamento em ótimo estado, pouco uso.", description = "Descrição do equipamento doado")
     private String descricao;
 
     @Enumerated(EnumType.STRING)
-    @Schema(example = "NOVO")
+    @Schema(example = "NOVO", description = "Estado de conservação do equipamento doado")
     private Conservacao statusConservacao; 
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
@@ -52,7 +52,7 @@ public class Doacao {
     private ImagemDoacao imagem;
 
     @Enumerated(EnumType.STRING)
-    @Schema(example = "PENDENTE")
+    @Schema(example = "PENDENTE", description = "Status da doação")
     private Status status;
 
 
