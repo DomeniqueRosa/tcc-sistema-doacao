@@ -1,6 +1,7 @@
 package com.sistemadoacao.backend.model;
 
 public enum Status {
+    APROVADO_IA,
     APROVADO,
     REPROVADO,
     EM_REPARO,

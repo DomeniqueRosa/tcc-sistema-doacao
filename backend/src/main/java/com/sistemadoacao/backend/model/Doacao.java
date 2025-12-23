@@ -15,13 +15,33 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
+@AllArgsConstructor
+@NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
 public class Doacao {
+
+    public Doacao(Long id, String cpfUsuario, Equipamento equipamento, Integer quantidade,
+            String descricao, Conservacao statusConservacao, LocalDate dataCadastro,
+            String url_imagem, Status status) {
+        this.id = id;
+        this.cpfUsuario = cpfUsuario;
+        this.equipamento = equipamento;
+        this.quantidade = quantidade;
+        this.descricao = descricao;
+        this.statusConservacao = statusConservacao;
+        this.dataCadastro = dataCadastro;
+        this.status = status;
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
@@ -30,6 +50,7 @@ public class Doacao {
     @Schema(example = "12345678900", description = "CPF do doador")
     private String cpfUsuario;
 
+    @Enumerated(EnumType.STRING)
     @Schema(example = "Teclado", description = "Tipo de equipamento doado")
     private Equipamento equipamento;
 
@@ -41,7 +62,7 @@ public class Doacao {
 
     @Enumerated(EnumType.STRING)
     @Schema(example = "NOVO", description = "Estado de conservação do equipamento doado")
-    private Conservacao statusConservacao; 
+    private Conservacao statusConservacao;
 
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @CreatedDate
@@ -49,6 +70,7 @@ public class Doacao {
     private LocalDate dataCadastro;
 
     @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "imagem_id")
     private ImagemDoacao imagem;
 
     @Enumerated(EnumType.STRING)
