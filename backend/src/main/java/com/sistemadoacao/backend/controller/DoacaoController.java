@@ -1,14 +1,8 @@
 package com.sistemadoacao.backend.controller;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.List;
 
-import javax.imageio.ImageIO;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,7 +22,7 @@ import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.ImagemDoacao;
 import com.sistemadoacao.backend.service.DoacaoService;
-import com.sistemadoacao.backend.service.ImagemDoacaoService;
+import com.sistemadoacao.backend.service.FileService;
 import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.model.Conservacao;
 
@@ -36,7 +30,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -46,14 +39,12 @@ import lombok.extern.slf4j.Slf4j;
 @Tag(name = "Doação", description = "Endpoints para gerenciamento de doacoes")
 public class DoacaoController {
 
-    private final ImagemDoacaoService imagemDoacaoService;
-
     private final DoacaoService doacaoService;
-    private final String PASTA = "C:\\tcc-sistema-doacao\\backend\\src\\main\\resources\\static\\images\\";
+    private final FileService fileService;
 
-    public DoacaoController(DoacaoService doacaoService, ImagemDoacaoService imagemDoacaoService) {
+    public DoacaoController(DoacaoService doacaoService, FileService file) {
         this.doacaoService = doacaoService;
-        this.imagemDoacaoService = imagemDoacaoService;
+        this.fileService = file;
 
     }
 
@@ -66,34 +57,26 @@ public class DoacaoController {
         try {
             return ResponseEntity.ok(doacaoService.listarDoacoes());
         } catch (Exception e) {
-            e.printStackTrace(); // Isso vai mostrar o erro REAL no console da IDE
+            e.printStackTrace();
             return ResponseEntity.status(500).build();
         }
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Listar todas as doações", description = "Retorna uma lista de todas as doações cadastradas no sistema.")
-    @ApiResponse(responseCode = "200", description = "Doacoes encontrados com sucesso")
+    @Operation(summary = "Lista doacao por ID", description = "Retorna doacao com ID buscado.")
+    @ApiResponse(responseCode = "200", description = "Doação encontrada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doação nao encontrada.")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Doacao> listarDoacaoPorId(@PathParam(value = "") Long id) {
+    public ResponseEntity<Doacao> listarDoacaoPorId(@PathVariable(value = "") Long id) {
 
         try {
-            if (id == null) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-            }
-
-            Doacao doacao = doacaoService.listarDoacaoPorId(id);
-
-            if(doacao == null) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-
             return ResponseEntity.ok(doacaoService.listarDoacaoPorId(id));
-            
-        } catch (Exception e) {
-            log.error("Erro ao listar doação por ID", e);
-            return ResponseEntity.status(500).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -111,51 +94,9 @@ public class DoacaoController {
             @RequestParam("status") Status status) {
 
         try {
-
-            // Validar se o arquivo está vazio
-
-            if (arquivo.isEmpty()) {
-
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-
-            }
-
-            BufferedImage bi = ImageIO.read(arquivo.getInputStream());
-
-            // Validar se o arquivo é uma imagem
-
-            if (bi == null) {
-
-                return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
-
-            }
-
-            // Criar o diretório se não existir
-
-            File diretorio = new File(PASTA);
-
-            if (!diretorio.exists()) {
-
-                diretorio.mkdirs();
-
-            }
-
-            // nome único para o arquivo
-
-            String nomeArquivo = System.currentTimeMillis() + "_" + arquivo.getOriginalFilename();
-
-            // remover espaços do nome do arquivo
-
-            nomeArquivo = nomeArquivo.replaceAll("\\s+", "_");
-
-            Path caminhoCompleto = Paths.get(PASTA + nomeArquivo);
-
-            // Salvar o arquivo
-
-            Files.write(caminhoCompleto, arquivo.getBytes());
+            String nomeArquivo = fileService.salvarArquivo(arquivo);
 
             // Imagem com a URL
-
             ImagemDoacao novaImagem = new ImagemDoacao(nomeArquivo);
 
             // Doacao e associar a Imagem
@@ -175,9 +116,12 @@ public class DoacaoController {
             return ResponseEntity.status(HttpStatus.CREATED).body(doacaoSalva);
 
         } catch (IOException e) {
+            log.error("Erro ao salvar imagem", e);
+            return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
+        } catch (IllegalArgumentException e2) {
 
-            e.printStackTrace();
-            log.error("Erro ao cadastrar doação", e);
+            e2.printStackTrace();
+            log.error("Erro ao cadastrar doação", e2);
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
@@ -188,35 +132,29 @@ public class DoacaoController {
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar doacao pelo ID")
     @ApiResponse(responseCode = "204", description = "Doação deletado com sucesso")
+    @ApiResponse(responseCode = "400", description = "Requisição inválida")
     @ApiResponse(responseCode = "404", description = "Doação não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     public ResponseEntity<Void> deletarDoacao(@PathVariable Long id) {
-        boolean deleted = false;
-        if (id == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        Doacao doacaoExistente = doacaoService.listarDoacaoPorId(id);
 
-        if(doacaoExistente == null) {
-            return ResponseEntity.notFound().build();
-        }
-        // Tentar deletar a imagem física primeiro
-        if (doacaoExistente.getImagem().getUrl() != null) {
-            try {
-                Path caminhoImagem = Paths.get(PASTA + doacaoExistente.getImagem().getUrl());
-                Files.deleteIfExists(caminhoImagem);
-            } catch (IOException e) {
-                log.error("Erro ao deletar arquivo: " + e.getMessage());
+        try {
+            Doacao doacaoExistente = doacaoService.listarDoacaoPorId(id);
+            // Tenta deletar o arquivo físico (se houver imagem)
+            if (doacaoExistente.getImagem() != null && doacaoExistente.getImagem().getUrl() != null) {
+                fileService.deletarArquivo(doacaoExistente.getImagem().getUrl());
             }
-        }
-        imagemDoacaoService.deleteImagemDoacao(doacaoExistente.getImagem().getId());
-        deleted = doacaoService.deleteDoacao(id);
-        if (deleted) {
-            // 204 No Content
-            return ResponseEntity.noContent().build();
-        } else {
-            // 404 Not Found
-            return ResponseEntity.notFound().build();
+
+            // Deleta o registro do banco de dados
+            doacaoService.deleteDoacao(id);
+
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        } catch (RuntimeException e1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
+        } catch (Exception e) {
+            log.error("Erro ao deletar doação ou arquivo", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
@@ -258,25 +196,13 @@ public class DoacaoController {
 
             // Lógica de imagem (Executada apenas se um novo arquivo for enviado)
             if (arquivo != null && !arquivo.isEmpty()) {
-                // Validar se é imagem
-                BufferedImage bi = ImageIO.read(arquivo.getInputStream());
-                if (bi == null) {
-                    return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).build();
-                }
 
-                // Opcional: Deletar arquivo antigo para economizar espaço
+                // Deletar arquivo antigo para economizar espaço
                 if (doacaoExistente.getImagem() != null) {
-                    Path caminhoAntigo = Paths.get(PASTA + doacaoExistente.getImagem().getUrl());
-                    Files.deleteIfExists(caminhoAntigo);
+                    fileService.deletarArquivo(doacaoExistente.getImagem().getUrl());
                 }
 
-                // Salvar novo arquivo físico
-                String nomeArquivo = System.currentTimeMillis() + "_" + arquivo.getOriginalFilename();
-
-                nomeArquivo = nomeArquivo.replaceAll("\\s+", "_");
-
-                Path caminhoCompleto = Paths.get(PASTA + nomeArquivo);
-                Files.write(caminhoCompleto, arquivo.getBytes());
+                String nomeArquivo = fileService.salvarArquivo(arquivo);
 
                 // Atualizar entidade Imagem
                 if (doacaoExistente.getImagem() != null) {
@@ -290,7 +216,9 @@ public class DoacaoController {
 
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        } catch (RuntimeException e2) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-    }
 
+    }
 }
