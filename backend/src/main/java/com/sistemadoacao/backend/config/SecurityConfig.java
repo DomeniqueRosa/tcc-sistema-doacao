@@ -1,23 +1,40 @@
 package com.sistemadoacao.backend.config;
 
+
+import java.util.Arrays;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity // Permite usar @PreAuthorize nas telas de dashboard
 public class SecurityConfig {
+
+    @Autowired
+    private SecurityFilter securityFilter;
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -25,34 +42,34 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-            // 1. AQUI MUDOU: Usamos withDefaults() para ele procurar o Bean lá de baixo
-            .cors(withDefaults()) 
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            );
-        
-        return http.build();
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(csrf -> csrf.disable()) // Desabilita para APIs stateless
+                .cors(Customizer.withDefaults())
+                .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(req -> {
+                    req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // Permite requisições OPTIONS para CORS
+                    req.requestMatchers("/auth/login").permitAll(); // Login é aberto
+                    req.requestMatchers("/usuarios").permitAll(); // Cadastro de usuário é aberto
+                    req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll(); // Swagger aberto                                             
+                    req.anyRequest().authenticated(); // Todo o resto precisa de login
+                })
+                .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
     }
 
-    // 2. AQUI MUDOU: O tipo de retorno é CorsConfigurationSource, não mais CorsFilter
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        
-        config.setAllowCredentials(true);
-        // Define a origem exata do Angular
-        config.setAllowedOrigins(List.of("http://localhost:4200"));
-        // Permite todos os headers
-        config.setAllowedHeaders(List.of("*"));
-        // Permite os métodos
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        CorsConfiguration configuration = new CorsConfiguration();
+        // Permite a URL do seu front-end (ex: localhost:3000 ou 5173)
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        
-        return source; // Retorna a fonte de configuração, o Spring cria o filtro sozinho
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
+
 }
