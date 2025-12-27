@@ -62,6 +62,23 @@ public class DoacaoController {
         }
     }
 
+    @GetMapping("tipo/{equipamento}")
+    @Operation(summary = "Listar todas as doações que são do mesmo tipo de equipamento", description = "Retorna uma lista de todas as doações cadastradas no sistema com o tipo do equipamento.")
+    @ApiResponse(responseCode = "200", description = "Doacoes encontrados com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<Doacao>> listarDoacoesPorEquipamento(@PathVariable Equipamento equipamento) {
+
+        try {
+            
+            return ResponseEntity.ok(doacaoService.listarDoacoesPorEquipamento(equipamento));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.error("ERRO AO LISTAR");
+            return ResponseEntity.status(500).build();
+        }
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Lista doacao por ID", description = "Retorna doacao com ID buscado.")
     @ApiResponse(responseCode = "200", description = "Doação encontrada com sucesso")

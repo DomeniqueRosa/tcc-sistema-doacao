@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.sistemadoacao.backend.model.Doacao;
+import com.sistemadoacao.backend.model.Equipamento;
+import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
 
 import lombok.NonNull;
@@ -27,6 +29,54 @@ public class DoacaoService {
 
     public List<Doacao> listarDoacoes() {
         return repository.findAll();
+    }
+
+    public List<Doacao> listarDoacoesPorEquipamento(Equipamento e) {
+        return repository.findByEquipamento(e);
+    }
+
+    public List<Doacao> listarDoacoesPorStatus(Status status) {
+        return repository.findByStatus(status);
+    }
+
+    public List<Doacao> listarAprovados() {
+        return repository.findByStatus(Status.APROVADO);
+    }
+
+    public Doacao aprovarDoacao(Long id){
+        if(id == null){
+            throw new IllegalArgumentException("ID nao pode ser nulo");
+        }
+
+        try {
+            Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
+            doacao.setStatus(Status.APROVADO);
+            repository.save(doacao);
+            return doacao;
+        } catch (Exception e) {
+            log.error("Erro ao aprovar doacao");
+            return null;
+        }
+    }
+
+    public Doacao reprovarDoacao(Long id){
+        if(id == null){
+            throw new IllegalArgumentException("ID nao pode ser nulo");
+        }
+
+        try {
+            Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
+            doacao.setStatus(Status.REPROVADO);
+            repository.save(doacao);
+            return doacao;
+        } catch (Exception e) {
+            log.error("Erro ao aprovar doacao");
+            return null;
+        }
+    }
+
+    public Long totalDoacoes(){
+        return repository.count();
     }
 
     public Doacao listarDoacaoPorId(Long id) {
