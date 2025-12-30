@@ -1,6 +1,8 @@
 package com.sistemadoacao.backend.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -16,6 +18,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -79,6 +82,16 @@ public class Doacao {
     @Enumerated(EnumType.STRING)
     @Schema(example = "PENDENTE", description = "Status da doação")
     private Status status;
+
+    @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
+    private List<HistoricoDoacao> historico = new ArrayList<>();
+    
+    @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
+    private List<Reparo> reparos = new ArrayList<>();
+
+
+
+
 
 
 }
