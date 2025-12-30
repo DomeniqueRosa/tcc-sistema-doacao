@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
@@ -24,6 +25,7 @@ import com.sistemadoacao.backend.model.ImagemDoacao;
 import com.sistemadoacao.backend.service.DoacaoService;
 import com.sistemadoacao.backend.service.FileService;
 import com.sistemadoacao.backend.model.Status;
+import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.model.Conservacao;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -107,14 +109,18 @@ public class DoacaoController {
             @RequestParam("quantidade") Integer quantidade,
             @RequestParam("descricao") String descricao,
             @RequestParam("statusConservacao") Conservacao statusConservacao,
-            @RequestParam("arquivo") MultipartFile arquivo,
+            @RequestPart("arquivo") MultipartFile arquivo,
             @RequestParam("status") Status status) {
 
         try {
+
+            log.debug("Dados recebidos da requisicao: {}", arquivo.getOriginalFilename());
             String nomeArquivo = fileService.salvarArquivo(arquivo);
+
 
             // Imagem com a URL
             ImagemDoacao novaImagem = new ImagemDoacao(nomeArquivo);
+            log.debug("Arquivo salvo com nome {}",nomeArquivo);
 
             // Doacao e associar a Imagem
 
@@ -129,6 +135,8 @@ public class DoacaoController {
             novaDoacao.setImagem(novaImagem); // O CascadeType.ALL salvará a imagem automaticamente
 
             Doacao doacaoSalva = doacaoService.save(novaDoacao);
+
+            log.debug("Doação cadastrada com ID {}", doacaoSalva.getId());
 
             return ResponseEntity.status(HttpStatus.CREATED).body(doacaoSalva);
 
@@ -238,4 +246,63 @@ public class DoacaoController {
         }
 
     }
+    @Operation(summary = "Obtem dados para preencher Dashboard", description = "Retorna um json com todos os dados para adiciionar nos cards e graficos.")
+    @ApiResponse(responseCode = "200", description = "Dados do dashboard obtidos com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @ApiResponse(responseCode = "403", description = "Acesso negado", content = @Content)
+    @GetMapping("/dashboard")
+    public ResponseEntity<DashboardDTO> getDashboard() {
+        DashboardDTO dashboard = doacaoService.gerarRelatorioGeral();
+        return ResponseEntity.ok(dashboard);
+    }
+
+    @Operation(summary = "Aprovar doação", description = "Altera o status da doação para APROVADO.")
+    @ApiResponse(responseCode = "200", description = "Doação aprovada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("aprovar/{id}")
+    public ResponseEntity<Doacao> aprovarDoacao(@PathVariable Long id) {
+        try {
+            Doacao doacaoAprovada = doacaoService.aprovarDoacao(id);
+            return ResponseEntity.ok(doacaoAprovada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @Operation(summary = "Reprovar doação", description = "Altera o status da doação para REPROVADO.")
+    @ApiResponse(responseCode = "200", description = "Doação reprovada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("reprovar/{id}")
+    public ResponseEntity<Doacao> reprovarDoacao(@PathVariable Long id) {
+        try {
+            Doacao doacaoReprovada = doacaoService.reprovarDoacao(id);
+            return ResponseEntity.ok(doacaoReprovada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    
+    @Operation(summary = "Realizar doação", description = "Altera o status da doação para REALIZADA e define a data de entrega.")
+    @ApiResponse(responseCode = "200", description = "Doação realizada com sucesso")
+    @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("realizar/{id}")
+    public ResponseEntity<Doacao> realizarDoacao(@PathVariable Long id) {
+        try {
+            Doacao doacaoRealizada = doacaoService.realizarDoacao(id);
+            return ResponseEntity.ok(doacaoRealizada);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+
+    
 }

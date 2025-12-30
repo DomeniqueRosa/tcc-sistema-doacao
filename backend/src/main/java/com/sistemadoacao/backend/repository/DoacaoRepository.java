@@ -1,7 +1,9 @@
 package com.sistemadoacao.backend.repository;
+
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.sistemadoacao.backend.model.Doacao;
@@ -16,5 +18,20 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
 
     // Lista todos por status
     List<Doacao> findByStatus(Status status);
+
+    long countByStatus(Status status);
+
+    
+
+    @Query("SELECT MONTH(d.dataEntrega) as mes, COUNT(d.id) as total " +
+            "FROM Doacao d " +
+            "WHERE d.status = 'REALIZADA' " +
+            "GROUP BY MONTH(d.dataEntrega)")
+    List<Object[]> findDoacoesMensais();
+
+    @Query("SELECT d.equipamento, COUNT(d.id) " +
+            "FROM Doacao d " +
+            "GROUP BY d.equipamento")
+    List<Object[]> findTotalPorEquipamento();
 
 }

@@ -1,13 +1,18 @@
 package com.sistemadoacao.backend.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.sistemadoacao.backend.dto.DashboardDTO;
+import com.sistemadoacao.backend.dto.GraficoDTO;
+import com.sistemadoacao.backend.dto.GraficoEquipamentoDTO;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
+import com.sistemadoacao.backend.repository.UsuarioRepository;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -17,9 +22,11 @@ import lombok.extern.slf4j.Slf4j;
 public class DoacaoService {
 
     private final DoacaoRepository repository;
+    private final UsuarioRepository usuarioRepository;
 
-    public DoacaoService(DoacaoRepository repository) {
+    public DoacaoService(DoacaoRepository repository, UsuarioRepository usuarioRepository) {
         this.repository = repository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public Doacao save(@NonNull Doacao novaDoacao) {
@@ -43,8 +50,19 @@ public class DoacaoService {
         return repository.findByStatus(Status.APROVADO);
     }
 
-    public Doacao aprovarDoacao(Long id){
-        if(id == null){
+    public Doacao realizarDoacao(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("ID nao pode ser nulo");
+        }
+
+        Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
+        doacao.setStatus(Status.REALIZADA);
+        doacao.setDataEntrega(LocalDate.now());
+        return repository.save(doacao);
+    }
+
+    public Doacao aprovarDoacao(Long id) {
+        if (id == null) {
             throw new IllegalArgumentException("ID nao pode ser nulo");
         }
 
@@ -59,8 +77,8 @@ public class DoacaoService {
         }
     }
 
-    public Doacao reprovarDoacao(Long id){
-        if(id == null){
+    public Doacao reprovarDoacao(Long id) {
+        if (id == null) {
             throw new IllegalArgumentException("ID nao pode ser nulo");
         }
 
@@ -75,7 +93,7 @@ public class DoacaoService {
         }
     }
 
-    public Long totalDoacoes(){
+    public Long totalDoacoes() {
         return repository.count();
     }
 
@@ -89,7 +107,7 @@ public class DoacaoService {
     }
 
     public boolean deleteDoacao(@NonNull Long id) {
-        if(repository.existsById(id) == false) {
+        if (repository.existsById(id) == false) {
             log.warn("Tentativa de deletar doacao não existente: ID {}", id);
             return false;
         } else {
@@ -100,49 +118,69 @@ public class DoacaoService {
     }
 
     public Doacao updateDoacao(@NonNull Long id, Doacao atualizado) {
-        
+
         Doacao existente = listarDoacaoPorId(id);
 
-        if(existente == null) {
+        if (existente == null) {
             log.error("Erro ao atualizar: Doação não encontrado para atualização: ID {}", id);
             throw new RuntimeException("Erro ao atualizar: Doação não encontrado com ID: " + id);
         }
 
-        if(atualizado.getCpfUsuario() != null){
+        if (atualizado.getCpfUsuario() != null) {
             existente.setCpfUsuario(atualizado.getCpfUsuario());
         }
 
-        if(atualizado.getEquipamento() != null){
+        if (atualizado.getEquipamento() != null) {
             existente.setEquipamento(atualizado.getEquipamento());
         }
 
-        if(atualizado.getQuantidade() != null){
+        if (atualizado.getQuantidade() != null) {
             existente.setQuantidade(atualizado.getQuantidade());
         }
 
-        if(atualizado.getDescricao() != null){
+        if (atualizado.getDescricao() != null) {
             existente.setDescricao(atualizado.getDescricao());
         }
 
-        if(atualizado.getStatusConservacao() != null){
+        if (atualizado.getStatusConservacao() != null) {
             existente.setStatusConservacao(atualizado.getStatusConservacao());
         }
 
-        if(atualizado.getStatus() != null){
+        if (atualizado.getStatus() != null) {
             existente.setStatus(atualizado.getStatus());
         }
 
-        if(atualizado.getImagem() != null){
+        if (atualizado.getImagem() != null) {
             existente.setImagem(atualizado.getImagem());
         }
 
-        
-
         return repository.save(existente);
+    }
 
-
-    
+    public DashboardDTO gerarRelatorioGeral() {
+        List<Object[]> resultadosBrutosPorEquipamento = repository.findTotalPorEquipamento();
         
+        List<Object[]> resultadosBrutos = repository.findDoacoesMensais();
+
+        // Converte a lista de Object[] para Lista de GraficoDTO
+        List<GraficoDTO> grafico = resultadosBrutos.stream()
+                .map(p -> new GraficoDTO((Integer) p[0], (Long) p[1]))
+                .toList();
+
+        List<GraficoEquipamentoDTO> graficoEquipamento = resultadosBrutosPorEquipamento.stream()
+                .map(p -> new GraficoEquipamentoDTO(p[0].toString(), (Long) p[1]))
+                .toList();
+        return new DashboardDTO(
+                usuarioRepository.count(),
+                repository.count(),
+                repository.countByStatus(Status.REALIZADA),
+                repository.countByStatus(Status.APROVADO),
+                repository.countByStatus(Status.APROVADO_IA),
+                repository.countByStatus(Status.REPROVADO),
+                repository.countByStatus(Status.EM_REPARO),
+                grafico,
+                graficoEquipamento
+        );
     }
 
 }
