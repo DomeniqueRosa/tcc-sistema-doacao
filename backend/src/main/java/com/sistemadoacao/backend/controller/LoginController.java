@@ -25,7 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
-@RequestMapping("/auth/login")
+@RequestMapping("/login")
 @CrossOrigin(origins = "http://localhost:4200")
 @Tag(name = "Login", description = "Endpoint publico para autenticação de usuários")
 public class LoginController {
@@ -44,12 +44,15 @@ public class LoginController {
         try {
             // Se o RequestBody estiver errado, 'dados' será null aqui
             var authenticationToken = new UsernamePasswordAuthenticationToken(dados.email(), dados.senha());
-            var authentication = manager.authenticate(authenticationToken);
+            manager.authenticate(authenticationToken);
     
             var pessoa = repository.findByEmail(dados.email())
                         .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-
+            log.info("Usuário autenticado: {}", pessoa.getEmail());
+            log.debug("Gerando token para o usuário: {}", pessoa.getEmail());
             var token = tokenService.gerarToken(pessoa);
+
+            log.debug("token gerado: {}", token);
             
             String tipo = pessoa.getClass().getSimpleName().toUpperCase();
             

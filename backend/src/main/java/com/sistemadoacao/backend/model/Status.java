@@ -9,5 +9,5 @@ public enum Status {
     DESCARTE,
     PENDENTE,
     AGUARDANDO_ENTREGA,
-    CONCLUIDO
+    REALIZADA
 }

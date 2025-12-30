@@ -49,7 +49,8 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(req -> {
                     req.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll(); // Permite requisições OPTIONS para CORS
-                    req.requestMatchers("/auth/login").permitAll(); // Login é aberto
+                    req.requestMatchers("/login").permitAll(); // Login é aberto
+                    // req.requestMatchers("/doacao/**").permitAll(); // Doações são abertas
                     req.requestMatchers("/usuarios").permitAll(); // Cadastro de usuário é aberto
                     req.requestMatchers("/v3/api-docs/**", "/swagger-ui/**").permitAll(); // Swagger aberto                                             
                     req.anyRequest().authenticated(); // Todo o resto precisa de login

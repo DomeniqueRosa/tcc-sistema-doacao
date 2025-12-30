@@ -69,6 +69,9 @@ public class Doacao {
     @Column(nullable = false, updatable = false)
     private LocalDate dataCadastro;
 
+    @Column
+    private LocalDate dataEntrega;
+
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "imagem_id")
     private ImagemDoacao imagem;
