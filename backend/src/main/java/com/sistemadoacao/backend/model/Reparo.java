@@ -4,27 +4,32 @@ import java.time.LocalDate;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Reparo {
     @Id
     private Long id;
-    private Long doacaoId;
     private String descricao;
     private Long idTecnico;
     private LocalDate dataInicio;
     private LocalDate dataFim;
+    @OneToOne
+    @JoinColumn(name = "doacao_id") // Nome da coluna no banco de dados
+    private Doacao doacao; 
+
 
     public Reparo() {
     }
 
-    public Reparo(Long id, Long doacaoId, String descricao, Long idTecnico, LocalDate dataInicio, LocalDate dataFim) {
+    public Reparo(Long id, String descricao, Long idTecnico, LocalDate dataInicio, LocalDate dataFim, Doacao doacao) {
         this.id = id;
-        this.doacaoId = doacaoId;
         this.descricao = descricao;
         this.idTecnico = idTecnico;
         this.dataInicio = dataInicio;
         this.dataFim = dataFim;
+        this.doacao = doacao;
     }
 
     public Long getId() {
@@ -35,13 +40,7 @@ public class Reparo {
         this.id = id;
     }
 
-    public Long getDoacaoId() {
-        return doacaoId;
-    }
-
-    public void setDoacaoId(Long doacaoId) {
-        this.doacaoId = doacaoId;
-    }
+    
 
     public String getDescricao() {
         return descricao;
@@ -73,6 +72,14 @@ public class Reparo {
 
     public void setDataFim(LocalDate dataFim) {
         this.dataFim = dataFim;
+    }
+
+    public Doacao getDoacao() {
+        return doacao;
+    }
+
+    public void setDoacao(Doacao doacao) {
+        this.doacao = doacao;
     }
 
     

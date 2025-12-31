@@ -1,10 +1,13 @@
 package com.sistemadoacao.backend.model;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 
 @Entity
 public class Solicitacao {
@@ -23,9 +26,12 @@ public class Solicitacao {
 
     private Status status;
 
-    private List<Doacao> doacoes; // Relação com Doacao
-
+    @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL)
     private List<HistoricoSolicitacao> historico; // Relação com HistoricoSolicitacao
+
+    @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL)
+    private List<Doacao> doacoes = new ArrayList<>();
+
 
     public Solicitacao() {
     }

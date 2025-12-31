@@ -18,6 +18,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import lombok.AllArgsConstructor;
@@ -88,6 +89,10 @@ public class Doacao {
     
     @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
     private List<Reparo> reparos = new ArrayList<>();
+
+    @ManyToOne
+    @JoinColumn(name = "solicitacao_id") 
+    private Solicitacao solicitacao;
 
 
 
