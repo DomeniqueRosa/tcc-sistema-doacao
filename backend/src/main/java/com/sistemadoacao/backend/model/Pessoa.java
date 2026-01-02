@@ -1,9 +1,14 @@
 package com.sistemadoacao.backend.model;
 
 import java.time.LocalDate;
+import java.util.Collection;
+import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
@@ -19,7 +24,7 @@ import lombok.Data;
 @Entity
 @EntityListeners(AuditingEntityListener.class)
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Pessoa {
+public class Pessoa implements UserDetails {
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
@@ -36,5 +41,18 @@ public abstract class Pessoa {
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDate dataCadastro;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        String role = "ROLE_" + this.getClass().getSimpleName().toUpperCase();
+        return List.of(new SimpleGrantedAuthority(role));
+    }
+    @Override
+    public String getPassword() {
+        return this.senha;
+    }
+    @Override
+    public String getUsername() {
+        return this.id.toString();
+    }
 
 }

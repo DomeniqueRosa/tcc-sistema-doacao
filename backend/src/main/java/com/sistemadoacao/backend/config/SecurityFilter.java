@@ -1,5 +1,6 @@
 package com.sistemadoacao.backend.config;
 
+import com.sistemadoacao.backend.repository.PessoaRepository;
 import com.sistemadoacao.backend.service.TokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -17,6 +18,11 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     @Autowired
     private TokenService tokenService;
+    private final PessoaRepository repository;
+
+    public SecurityFilter(PessoaRepository repository) {
+        this.repository = repository;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -24,10 +30,14 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         var token = recuperarToken(request);
         if (token != null) {
-            var subject = tokenService.validarToken(token);
-            // Aqui o Spring entende que o usuário está autenticado
-            var authentication = new UsernamePasswordAuthenticationToken(subject, null, null);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            var email = tokenService.validarToken(token); // O subject aqui é o email
+            var pessoa = repository.findByEmail(email).orElse(null);
+
+            if (pessoa != null) {
+                // Agora o primeiro argumento é o objeto 'pessoa', não apenas uma String
+                var authentication = new UsernamePasswordAuthenticationToken(pessoa, null, pessoa.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
         filterChain.doFilter(request, response);
     }
