@@ -55,7 +55,7 @@ public class Solicitacao {
     private boolean sem_computador = true;
 
     @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL)
-    private List<HistoricoSolicitacao> historico; // Relação com HistoricoSolicitacao
+    private List<HistoricoSolicitacao> historico = new ArrayList<>(); 
 
     @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL)
     private List<Doacao> doacoes = new ArrayList<>();

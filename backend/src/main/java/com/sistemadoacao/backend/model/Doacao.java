@@ -32,11 +32,11 @@ import lombok.NoArgsConstructor;
 @EntityListeners(AuditingEntityListener.class)
 public class Doacao {
 
-    public Doacao(Long id, String cpfUsuario, Equipamento equipamento, Integer quantidade,
+    public Doacao(Long id, Long doadorId, Equipamento equipamento, Integer quantidade,
             String descricao, Conservacao statusConservacao, LocalDate dataCadastro,
             String url_imagem, Status status) {
         this.id = id;
-        this.cpfUsuario = cpfUsuario;
+        this.doadorId = doadorId;
         this.equipamento = equipamento;
         this.quantidade = quantidade;
         this.descricao = descricao;
@@ -51,8 +51,8 @@ public class Doacao {
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
-    @Schema(example = "12345678900", description = "CPF do doador")
-    private String cpfUsuario;
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    private Long doadorId;
 
     @Enumerated(EnumType.STRING)
     @Schema(example = "Teclado", description = "Tipo de equipamento doado")
