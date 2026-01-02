@@ -8,6 +8,5 @@ public enum Equipamento {
     MOUSE,
     ROTEADOR,
     CAIXA_DE_SOM,
-    FONE_DE_OUVIDO,
     WEBCAM
 }

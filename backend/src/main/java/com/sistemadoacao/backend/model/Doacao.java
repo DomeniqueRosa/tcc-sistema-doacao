@@ -73,6 +73,7 @@ public class Doacao {
     @Column(nullable = false, updatable = false)
     private LocalDate dataCadastro;
 
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @Column
     private LocalDate dataEntrega;
 
@@ -93,10 +94,5 @@ public class Doacao {
     @ManyToOne
     @JoinColumn(name = "solicitacao_id") 
     private Solicitacao solicitacao;
-
-
-
-
-
 
 }
