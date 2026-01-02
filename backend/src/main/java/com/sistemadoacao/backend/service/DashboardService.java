@@ -24,7 +24,7 @@ public class DashboardService {
         return new DashboardDTO(
                 usuarioRepository.count(),
                 doacaoRepository.count(),
-                doacaoRepository.countByStatus(Status.REALIZADA),
+                doacaoRepository.countByStatus(Status.DOADO),
                 doacaoRepository.countByStatus(Status.APROVADO),
                 doacaoRepository.countByStatus(Status.APROVADO_IA),
                 doacaoRepository.countByStatus(Status.REPROVADO),

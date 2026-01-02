@@ -4,6 +4,9 @@ import java.io.IOException;
 
 import java.util.List;
 
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.sistemadoacao.backend.model.Pessoa;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -50,6 +53,8 @@ public class DoacaoController {
 
     }
 
+    // TODO: Implementar função para imprimir etiqueta de doação com QR Code
+
     @GetMapping()
     @Operation(summary = "Listar todas as doações", description = "Retorna uma lista de todas as doações cadastradas no sistema.")
     @ApiResponse(responseCode = "200", description = "Doacoes encontrados com sucesso")
@@ -71,7 +76,7 @@ public class DoacaoController {
     public ResponseEntity<List<Doacao>> listarDoacoesPorEquipamento(@PathVariable Equipamento equipamento) {
 
         try {
-            
+
             return ResponseEntity.ok(doacaoService.listarDoacoesPorEquipamento(equipamento));
 
         } catch (Exception e) {
@@ -98,35 +103,41 @@ public class DoacaoController {
 
     }
 
+    // TODO: Adicionar principal na requisição para pegar o usuário logado ao cadastrar doação
+    // cadastrar nova doação
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Criar uma nova doação", description = "Cria uma nova doação com os dados fornecidos com upload da imagem associada.")
     @ApiResponse(responseCode = "201", description = "Doação criada com sucesso")
     @ApiResponse(responseCode = "404", description = "Arquivo não encontrado", content = @Content)
     @ApiResponse(responseCode = "415", description = "Formato de arquivo inválido", content = @Content)
     public ResponseEntity<Doacao> cadastrarDoacao(
-            @RequestParam("cpfDoacao") String cpfDoacao,
             @RequestParam("equipamento") Equipamento equipamento,
             @RequestParam("quantidade") Integer quantidade,
             @RequestParam("descricao") String descricao,
             @RequestParam("statusConservacao") Conservacao statusConservacao,
             @RequestPart("arquivo") MultipartFile arquivo,
-            @RequestParam("status") Status status) {
+            @RequestParam("status") Status status,
+            @AuthenticationPrincipal Pessoa principal) {
+
+        if (principal == null) {
+            log.error("O objeto principal está nulo. Verifique se o SecurityFilter está injetando o usuário.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
 
         try {
 
             log.debug("Dados recebidos da requisicao: {}", arquivo.getOriginalFilename());
             String nomeArquivo = fileService.salvarArquivo(arquivo);
 
-
             // Imagem com a URL
             ImagemDoacao novaImagem = new ImagemDoacao(nomeArquivo);
-            log.debug("Arquivo salvo com nome {}",nomeArquivo);
+            log.debug("Arquivo salvo com nome {}", nomeArquivo);
 
             // Doacao e associar a Imagem
 
             Doacao novaDoacao = new Doacao();
 
-            novaDoacao.setCpfUsuario(cpfDoacao);
+            novaDoacao.setDoadorId(principal.getId());
             novaDoacao.setEquipamento(Equipamento.valueOf(equipamento.name()));
             novaDoacao.setQuantidade(quantidade);
             novaDoacao.setDescricao(descricao);
@@ -206,8 +217,7 @@ public class DoacaoController {
             }
 
             // Atualiza os campos que não forem nulos
-            if (cpfDoacao != null)
-                doacaoExistente.setCpfUsuario(cpfDoacao);
+    
             if (equipamento != null)
                 doacaoExistente.setEquipamento(equipamento);
             if (quantidade != null)
@@ -246,6 +256,7 @@ public class DoacaoController {
         }
 
     }
+
     @Operation(summary = "Obtem dados para preencher Dashboard", description = "Retorna um json com todos os dados para adiciionar nos cards e graficos.")
     @ApiResponse(responseCode = "200", description = "Dados do dashboard obtidos com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
@@ -271,6 +282,7 @@ public class DoacaoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
     @Operation(summary = "Reprovar doação", description = "Altera o status da doação para REPROVADO.")
     @ApiResponse(responseCode = "200", description = "Doação reprovada com sucesso")
     @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
@@ -286,7 +298,7 @@ public class DoacaoController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    
+
     @Operation(summary = "Realizar doação", description = "Altera o status da doação para REALIZADA e define a data de entrega.")
     @ApiResponse(responseCode = "200", description = "Doação realizada com sucesso")
     @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
@@ -303,6 +315,18 @@ public class DoacaoController {
         }
     }
 
+    @GetMapping("/aprovada")
+    @Operation(summary = "Lista doações aprovadas", description = "Retorna todas as doações com status APROVADO ou APROVADO_IA. Usar esse endpoint para selecionar doações para solicitações.")
+    @ApiResponse(responseCode = "200", description = "Doações aprovadas retornadas com sucesso")
+    @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
+    public ResponseEntity<List<Doacao>> listarDoacoesAprovadas() {
+        try {
+            List<Doacao> doacoesAprovadas = doacaoService.listarAprovados();
+            return ResponseEntity.ok(doacoesAprovadas);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).build();
+        }
+    }
 
-    
 }

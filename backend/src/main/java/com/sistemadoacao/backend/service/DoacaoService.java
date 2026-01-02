@@ -30,6 +30,7 @@ public class DoacaoService {
     }
 
     public Doacao save(@NonNull Doacao novaDoacao) {
+        // TODO: Adicionar historico
         return repository.save(novaDoacao);
 
     }
@@ -47,16 +48,18 @@ public class DoacaoService {
     }
 
     public List<Doacao> listarAprovados() {
-        return repository.findByStatus(Status.APROVADO);
+        return repository.findAprovadas().stream()
+                .map(obj -> (Doacao) obj[0])
+                .toList();
     }
 
     public Doacao realizarDoacao(Long id) {
         if (id == null) {
             throw new IllegalArgumentException("ID nao pode ser nulo");
         }
-
+        // TODO: Adicionar historico
         Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
-        doacao.setStatus(Status.REALIZADA);
+        doacao.setStatus(Status.DOADO);
         doacao.setDataEntrega(LocalDate.now());
         return repository.save(doacao);
     }
@@ -67,6 +70,7 @@ public class DoacaoService {
         }
 
         try {
+            // TODO: Adicionar historico
             Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
             doacao.setStatus(Status.APROVADO);
             repository.save(doacao);
@@ -83,6 +87,7 @@ public class DoacaoService {
         }
 
         try {
+            // TODO: Adicionar historico
             Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
             doacao.setStatus(Status.REPROVADO);
             repository.save(doacao);
@@ -126,9 +131,6 @@ public class DoacaoService {
             throw new RuntimeException("Erro ao atualizar: Doação não encontrado com ID: " + id);
         }
 
-        if (atualizado.getCpfUsuario() != null) {
-            existente.setCpfUsuario(atualizado.getCpfUsuario());
-        }
 
         if (atualizado.getEquipamento() != null) {
             existente.setEquipamento(atualizado.getEquipamento());
@@ -173,7 +175,7 @@ public class DoacaoService {
         return new DashboardDTO(
                 usuarioRepository.count(),
                 repository.count(),
-                repository.countByStatus(Status.REALIZADA),
+                repository.countByStatus(Status.DOADO),
                 repository.countByStatus(Status.APROVADO),
                 repository.countByStatus(Status.APROVADO_IA),
                 repository.countByStatus(Status.REPROVADO),
