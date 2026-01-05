@@ -1,35 +1,47 @@
 package com.sistemadoacao.backend.service;
 
 
+import java.security.SecureRandom;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.model.Pessoa;
+import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
+import com.sistemadoacao.backend.repository.PessoaRepository;
+import com.sistemadoacao.backend.repository.TecnicoRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
 
 import org.springframework.lang.NonNull;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 
 
 
 @Service
+@Slf4j
 public class UsuarioService {
     
+    private final PessoaRepository pessoaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final TecnicoRepository tecnicoRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
-    private final Logger logger = LoggerFactory.getLogger(UsuarioService.class);
+    private static SecureRandom random = new SecureRandom();
+    private static final String DATA_FOR_RANDOM = "abcdefghijklmnopqrstuvwxyz" + "abcdefghijklmnopqrstuvwxyz".toUpperCase() + "0123456789";
     
    
-    public UsuarioService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder, TecnicoRepository tecnicoRepository, PessoaRepository pessoaRepository) {
         this.usuarioRepository = usuarioRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
+        this.tecnicoRepository = tecnicoRepository;
+        this.pessoaRepository = pessoaRepository;
     }
 
     // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
@@ -37,7 +49,7 @@ public class UsuarioService {
     public UsuarioDTO saveUsuario(Usuario usuario) {
         Usuario novo = new Usuario();
 
-        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
+        if (pessoaRepository.existsByEmail(usuario.getEmail())) {
             throw new RuntimeException("Já existe um usuário cadastrado com este e-mail.");
         }
 
@@ -50,18 +62,17 @@ public class UsuarioService {
             novo.setSenha(senhaCript);
             usuarioRepository.save(novo);
           
-            emailService.enviarEmailCadastro(novo.getEmail(), novo.getNome());
+            emailService.enviarEmailCadastro(novo.getEmail(), novo.getNome(), "");
             
         } catch (Exception e) {
-            logger.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
+            log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
-        logger.info("Salvando novo usuário: {}", usuario.getEmail());
+        log.info("Salvando novo usuário: {}", usuario.getEmail());
         return new UsuarioDTO(novo);
     }
 
-    public List<UsuarioDTO> getAllUsuarios() {
-        return usuarioRepository.findAll().stream()
-        .map(UsuarioDTO::new)
+    public List<Pessoa> getAllUsuarios() {
+        return pessoaRepository.findAll().stream()
         .toList();
     }
 
@@ -94,11 +105,11 @@ public class UsuarioService {
 
     public boolean deleteUsuario(@NonNull Long id) {
         if(usuarioRepository.existsById(id) == false) {
-            logger.warn("Tentativa de deletar usuário não existente: ID {}", id);
+            log.warn("Tentativa de deletar usuário não existente: ID {}", id);
             return false;
         } else {
             usuarioRepository.deleteById(id);
-            logger.info("Usuário deletado com sucesso: ID {}", id);
+            log.info("Usuário deletado com sucesso: ID {}", id);
             return true;
         }
     }
@@ -115,7 +126,52 @@ public class UsuarioService {
         usuario.setSenha(passwordEncoder.encode(novaSenha));
         usuarioRepository.save(usuario);
         
-        logger.info("Senha alterada com sucesso para o usuário ID: {}", id);
+        log.info("Senha alterada com sucesso para o usuário ID: {}", id);
+    }
+
+    public Tecnico saveTecnico(Tecnico tecnico) {
+        // TODO: implementar alterar senha
+        Tecnico novo = new Tecnico();
+
+        if (pessoaRepository.existsByEmail(tecnico.getEmail())) {
+            throw new RuntimeException("Já existe um usuário cadastrado com este e-mail.");
+        }
+
+        try {
+            novo.setNome(tecnico.getNome());
+            novo.setCpf(tecnico.getCpf());
+            novo.setEmail(tecnico.getEmail());
+            novo.setCurso(tecnico.getCurso());
+            novo.setGrr(tecnico.getGrr());
+            var novaSenha = gerarSenha(4);
+            String senhaCript = passwordEncoder.encode(novaSenha);
+
+            novo.setSenha(senhaCript);
+            tecnicoRepository.save(novo);
+          
+            emailService.enviarEmailCadastro(novo.getEmail(), novo.getNome(), novaSenha);
+            
+        } catch (Exception e) {
+            log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
+        }
+        log.info("Salvando novo usuário: {}", tecnico.getEmail());
+        // TODO: Retornar um TecnicoResponseDTO
+        return novo;
+    }
+
+    public List<Tecnico> listarTecnicos(){
+        return tecnicoRepository.findAll().stream()
+        .toList();
+    }
+
+    public String gerarSenha(int tamanho) {
+        StringBuilder sb = new StringBuilder(tamanho);
+        for (int i = 0; i < tamanho; i++) {
+            int rndCharAt = random.nextInt(DATA_FOR_RANDOM.length());
+            char rndChar = DATA_FOR_RANDOM.charAt(rndCharAt);
+            sb.append(rndChar);
+        }
+        return sb.toString();
     }
 
 }
