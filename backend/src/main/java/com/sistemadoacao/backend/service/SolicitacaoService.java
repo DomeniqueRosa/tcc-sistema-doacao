@@ -1,10 +1,10 @@
 package com.sistemadoacao.backend.service;
 
+import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 import java.util.List;
 
-
-
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -75,6 +75,7 @@ public class SolicitacaoService {
         return solicitacaoRepository.findAll();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public void delete(Long id) {
 
         
@@ -84,11 +85,19 @@ public class SolicitacaoService {
         h.setObservacao("Solicitacao deletada");
         h.setExecutor(getNomeUsuarioLogado());
         h.setStatus(Status.DESCARTE);
-        // TODO: Adicionar logica para preencher id_solicitacao no historico
+        // Adicionar id_solicitacao no historico
+        try {
+            Solicitacao s = findById(id);
+            h.setSolicitacao(s);
+            
+        } catch (Exception e) {
+            log.error("Erro ao buscar solicitacao para deletar.");
+        }
 
         solicitacaoRepository.deleteById(id);
     }
 
+    
     public Solicitacao uptadeSolicitacao(Long id, SolicitacaoRequest dto) {
         try {
             Solicitacao existente = findById(id);
@@ -122,6 +131,7 @@ public class SolicitacaoService {
 
     }
 
+    @PreAuthorize("hasRole('USUARIO')")
     public void aprovarSolicitacao(Long id) {
         try {
             Solicitacao existente = findById(id);
@@ -138,12 +148,17 @@ public class SolicitacaoService {
             existente.getHistorico().add(historico);
             existente.setStatus(Status.APROVADO);
             solicitacaoRepository.save(existente);
+        } catch( AccessDeniedException e1){
+            log.error("Usuario não tem permisao para aprovar {}", e1.getMessage());
+
+            
         } catch (Exception e) {
             log.error("Erro ao aprovar solicitação ID {}: {}", id, e.getMessage());
             throw new RuntimeException("Erro ao aprovar");
         }
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public void reprovarSolicitacao(Long id) {
         try {
             Solicitacao existente = findById(id);
@@ -166,6 +181,7 @@ public class SolicitacaoService {
         }
     }
 
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     public Solicitacao selecionarDoacaoSolicitacao(Long solicitacaoId, Long doacaoId)
             throws Exception {
         Solicitacao solicitacao = findById(solicitacaoId);

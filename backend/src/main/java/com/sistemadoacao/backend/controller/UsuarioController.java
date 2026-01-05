@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.service.UsuarioService;
@@ -87,7 +88,8 @@ public class UsuarioController {
     @Operation(summary = "Listar todos os usuários")
     @ApiResponse(responseCode = "200", description = "Usuários encontrados com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<List<UsuarioDTO>> listarUsuarios() {
+    // TODO: Retornar uma PessoaResponseDTO
+    public ResponseEntity<List<Pessoa>> listarUsuarios() {
         return ResponseEntity.ok(usuarioService.getAllUsuarios());
     }
 

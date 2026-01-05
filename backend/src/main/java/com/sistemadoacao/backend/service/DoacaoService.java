@@ -1,8 +1,9 @@
 package com.sistemadoacao.backend.service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.sistemadoacao.backend.dto.DashboardDTO;
@@ -10,6 +11,8 @@ import com.sistemadoacao.backend.dto.GraficoDTO;
 import com.sistemadoacao.backend.dto.GraficoEquipamentoDTO;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
+import com.sistemadoacao.backend.model.HistoricoDoacao;
+import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
@@ -30,7 +33,17 @@ public class DoacaoService {
     }
 
     public Doacao save(@NonNull Doacao novaDoacao) {
-        // TODO: Adicionar historico
+        
+        // Historico
+        HistoricoDoacao histDoacao = new HistoricoDoacao();
+        histDoacao.setDataAlteracao(LocalDateTime.now());
+        histDoacao.setObservacao("Doação cadastrada em sistema.");
+        histDoacao.setExecutor(getNomeUsuarioLogado());
+        histDoacao.setStatus(novaDoacao.getStatus());
+
+        histDoacao.setDoacao(novaDoacao);
+        novaDoacao.getHistorico().add(histDoacao);
+
         return repository.save(novaDoacao);
 
     }
@@ -53,16 +66,10 @@ public class DoacaoService {
                 .toList();
     }
 
-    public Doacao realizarDoacao(Long id) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID nao pode ser nulo");
-        }
-        // TODO: Adicionar historico
-        Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
-        doacao.setStatus(Status.DOADO);
-        doacao.setDataEntrega(LocalDate.now());
-        return repository.save(doacao);
+    public Doacao findByiD(Long id){
+        return repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
     }
+
 
     public Doacao aprovarDoacao(Long id) {
         if (id == null) {
@@ -70,8 +77,19 @@ public class DoacaoService {
         }
 
         try {
-            // TODO: Adicionar historico
-            Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
+            Doacao doacaoAprovar = findByiD(id);
+            // historico
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao("Doacao aprovada");
+            historicoDoacao.setExecutor(getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.APROVADO);
+
+            historicoDoacao.setDoacao(doacaoAprovar);
+
+            doacaoAprovar.getHistorico().add(historicoDoacao);
+
+            Doacao doacao = repository.findById(id).orElseThrow();
             doacao.setStatus(Status.APROVADO);
             repository.save(doacao);
             return doacao;
@@ -81,19 +99,30 @@ public class DoacaoService {
         }
     }
 
-    public Doacao reprovarDoacao(Long id) {
+    public Doacao reprovarDoacao(Long id, String motivo) {
         if (id == null) {
             throw new IllegalArgumentException("ID nao pode ser nulo");
         }
 
         try {
-            // TODO: Adicionar historico
-            Doacao doacao = repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
-            doacao.setStatus(Status.REPROVADO);
-            repository.save(doacao);
-            return doacao;
+
+            Doacao doacaoReprovar = findByiD(id);
+            // historico
+            HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+            historicoDoacao.setDataAlteracao(LocalDateTime.now());
+            historicoDoacao.setObservacao(motivo);
+            historicoDoacao.setExecutor(getNomeUsuarioLogado());
+            historicoDoacao.setStatus(Status.REPROVADO);
+
+            historicoDoacao.setDoacao(doacaoReprovar);
+
+            doacaoReprovar.getHistorico().add(historicoDoacao);
+
+            doacaoReprovar.setStatus(Status.REPROVADO);
+            repository.save(doacaoReprovar);
+            return doacaoReprovar;
         } catch (Exception e) {
-            log.error("Erro ao aprovar doacao");
+            log.error("Erro ao reprovar doacao");
             return null;
         }
     }
@@ -131,7 +160,6 @@ public class DoacaoService {
             throw new RuntimeException("Erro ao atualizar: Doação não encontrado com ID: " + id);
         }
 
-
         if (atualizado.getEquipamento() != null) {
             existente.setEquipamento(atualizado.getEquipamento());
         }
@@ -161,7 +189,7 @@ public class DoacaoService {
 
     public DashboardDTO gerarRelatorioGeral() {
         List<Object[]> resultadosBrutosPorEquipamento = repository.findTotalPorEquipamento();
-        
+
         List<Object[]> resultadosBrutos = repository.findDoacoesMensais();
 
         // Converte a lista de Object[] para Lista de GraficoDTO
@@ -181,8 +209,15 @@ public class DoacaoService {
                 repository.countByStatus(Status.REPROVADO),
                 repository.countByStatus(Status.EM_REPARO),
                 grafico,
-                graficoEquipamento
-        );
+                graficoEquipamento);
+    }
+
+    private String getNomeUsuarioLogado() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Pessoa pessoa) {
+            return pessoa.getNome(); 
+        }
+        return "Sistema"; 
     }
 
 }
