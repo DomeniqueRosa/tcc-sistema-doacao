@@ -1,11 +1,7 @@
 package com.sistemadoacao.backend.controller;
 
 import java.io.IOException;
-
 import java.util.List;
-
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import com.sistemadoacao.backend.model.Pessoa;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.http.MediaType;
@@ -53,7 +50,7 @@ public class DoacaoController {
 
     }
 
-    // TODO: Implementar função para imprimir etiqueta de doação com QR Code
+    // TODO: Implementar função para imprimir etiqueta de doação
 
     @GetMapping()
     @Operation(summary = "Listar todas as doações", description = "Retorna uma lista de todas as doações cadastradas no sistema.")
@@ -103,7 +100,6 @@ public class DoacaoController {
 
     }
 
-    // TODO: Adicionar principal na requisição para pegar o usuário logado ao cadastrar doação
     // cadastrar nova doação
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Criar uma nova doação", description = "Cria uma nova doação com os dados fornecidos com upload da imagem associada.")
@@ -116,13 +112,8 @@ public class DoacaoController {
             @RequestParam("descricao") String descricao,
             @RequestParam("statusConservacao") Conservacao statusConservacao,
             @RequestPart("arquivo") MultipartFile arquivo,
-            @RequestParam("status") Status status,
-            @AuthenticationPrincipal Pessoa principal) {
-
-        if (principal == null) {
-            log.error("O objeto principal está nulo. Verifique se o SecurityFilter está injetando o usuário.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+            @RequestParam("status") Status status
+            ) {
 
         try {
 
@@ -137,13 +128,14 @@ public class DoacaoController {
 
             Doacao novaDoacao = new Doacao();
 
-            novaDoacao.setDoadorId(principal.getId());
             novaDoacao.setEquipamento(Equipamento.valueOf(equipamento.name()));
             novaDoacao.setQuantidade(quantidade);
             novaDoacao.setDescricao(descricao);
             novaDoacao.setStatusConservacao(Conservacao.valueOf(statusConservacao.name()));
             novaDoacao.setStatus(Status.valueOf(status.name()));
             novaDoacao.setImagem(novaImagem); // O CascadeType.ALL salvará a imagem automaticamente
+
+            
 
             Doacao doacaoSalva = doacaoService.save(novaDoacao);
 
@@ -288,9 +280,10 @@ public class DoacaoController {
     @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
     @PatchMapping("reprovar/{id}")
-    public ResponseEntity<Doacao> reprovarDoacao(@PathVariable Long id) {
+    public ResponseEntity<Doacao> reprovarDoacao(@RequestBody String motivoReprovar, @PathVariable Long id
+        ) {
         try {
-            Doacao doacaoReprovada = doacaoService.reprovarDoacao(id);
+            Doacao doacaoReprovada = doacaoService.reprovarDoacao(id, motivoReprovar);
             return ResponseEntity.ok(doacaoReprovada);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -299,21 +292,6 @@ public class DoacaoController {
         }
     }
 
-    @Operation(summary = "Realizar doação", description = "Altera o status da doação para REALIZADA e define a data de entrega.")
-    @ApiResponse(responseCode = "200", description = "Doação realizada com sucesso")
-    @ApiResponse(responseCode = "404", description = "Doação não encontrada", content = @Content)
-    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
-    @PatchMapping("realizar/{id}")
-    public ResponseEntity<Doacao> realizarDoacao(@PathVariable Long id) {
-        try {
-            Doacao doacaoRealizada = doacaoService.realizarDoacao(id);
-            return ResponseEntity.ok(doacaoRealizada);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e2) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
 
     @GetMapping("/aprovada")
     @Operation(summary = "Lista doações aprovadas", description = "Retorna todas as doações com status APROVADO ou APROVADO_IA. Usar esse endpoint para selecionar doações para solicitações.")
