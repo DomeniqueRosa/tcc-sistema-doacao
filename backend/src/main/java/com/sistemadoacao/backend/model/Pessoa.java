@@ -43,8 +43,10 @@ public class Pessoa implements UserDetails {
     private LocalDate dataCadastro;
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        String role = "ROLE_" + this.getClass().getSimpleName().toUpperCase();
+        String role =  "ROLE_" + this.getClass().getSimpleName().toUpperCase();
+        System.out.println("DEBUG: Role gerada para o usuário: " + role); // Verifique o console!
         return List.of(new SimpleGrantedAuthority(role));
+
     }
     @Override
     public String getPassword() {
@@ -52,7 +54,7 @@ public class Pessoa implements UserDetails {
     }
     @Override
     public String getUsername() {
-        return this.id.toString();
+        return this.email;
     }
 
 }

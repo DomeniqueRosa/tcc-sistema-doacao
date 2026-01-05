@@ -3,6 +3,7 @@ package com.sistemadoacao.backend.controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.service.UsuarioService;
 
@@ -40,19 +42,32 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    @PostMapping("/tecnico")
+    @Operation(summary = "Cadastro de usuario Tecnico", description = "Cadastra um novo usuario no banco com permissao de tecnico")
+    @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMIN pode cadastrar um novo tecnico.", content = @Content)
+    public ResponseEntity<Tecnico> cadastrarTecnico(@RequestBody Tecnico tecnico) {
+        Tecnico novo;
+
+        try {
+
+            novo = usuarioService.saveTecnico(tecnico);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
+    }
+
     @PostMapping
     @Operation(summary = "Cadastrar usuário", description = "Cadastra um novo usuário no banco de dados com email unico. ")
-    @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso", content = @Content(mediaType = "application/json", 
-    examples = @ExampleObject(
-        value = """
-                    {
-                        "nome": "João Silva",
-                        "cpf": "12345678900",
-                        "email": "joao@gmail.com",
-                        "senha": "senhaSegura123"
-                    }
-                    """
-    )))
+    @ApiResponse(responseCode = "201", description = "Usuário cadastrado com sucesso", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = """
+            {
+                "nome": "João Silva",
+                "cpf": "12345678900",
+                "email": "joao@gmail.com",
+                "senha": "senhaSegura123"
+            }
+            """)))
     @ApiResponse(responseCode = "409", description = "Email já cadastrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<UsuarioDTO> cadastrarUsuario(@RequestBody Usuario usuario) {

@@ -9,5 +9,6 @@ public enum Status {
     DESCARTE,
     PENDENTE,
     AGUARDANDO_ENTREGA,
-    VINCULADO
+    VINCULADO,
+    REVER
 }
