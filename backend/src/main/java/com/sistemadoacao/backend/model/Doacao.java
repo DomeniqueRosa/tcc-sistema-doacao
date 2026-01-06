@@ -90,9 +90,9 @@ public class Doacao {
     @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
     private List<HistoricoDoacao> historico = new ArrayList<>();
     
-    @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "doacao", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("doacao")
-    private List<Reparo> reparos = new ArrayList<>();
+    private Reparo reparo;
 
     @ManyToOne
     @JoinColumn(name = "solicitacao_id") 

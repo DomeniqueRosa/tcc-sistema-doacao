@@ -41,7 +41,8 @@ public class ReparoService {
         try {
 
             Doacao doacao = doacaoRepository.findById(id_doacao)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Doacao nao encontrada com ID: " + id_doacao));
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                            "Doacao nao encontrada com ID: " + id_doacao));
 
             Reparo novoReparo = new Reparo();
             // Historico
@@ -52,7 +53,7 @@ public class ReparoService {
             historicoDoacao.setStatus(Status.REPARO);
 
             historicoDoacao.setDoacao(doacao);
-
+            doacao.setStatus(Status.REPARO);
             doacao.getHistorico().add(historicoDoacao);
             // fim historico
 
@@ -78,8 +79,46 @@ public class ReparoService {
         return reparos.stream().map(reparo -> new ReparoResponseDTO(reparo)).toList();
     }
 
-    public void concluirReparoAprovacao(Long id){
+    public void concluirReparoAprovacao(Long id, String motivo) {
 
+        Reparo reparoConcluir = reparoRepository.findById(id).orElseThrow();
+
+        if (reparoConcluir == null) {
+            throw new RuntimeException("Erro: Reparo nao encontrado.");
+        }
+
+        Doacao doacao = doacaoRepository.findById(reparoConcluir.getDoacao().getId()).orElseThrow();
+
+        if (doacao == null) {
+            throw new RuntimeException("Erro: Doacao do reparo nao encontrada");
+        }
+
+        // Historico
+        HistoricoDoacao historicoDoacao = new HistoricoDoacao();
+        historicoDoacao.setDataAlteracao(LocalDateTime.now());
+        historicoDoacao.setObservacao("Doacao em reparo concluido");
+        historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
+        historicoDoacao.setStatus(Status.APROVADO);
+
+        historicoDoacao.setDoacao(doacao);
+
+        doacao.setStatus(Status.APROVADO);
+        doacao.getHistorico().add(historicoDoacao);
+
+        reparoConcluir.setDataFim(LocalDateTime.now());
+        // fim historico
+
+        reparoConcluir.setDoacao(doacao);
+        reparoConcluir.setConclusao(motivo);
+        reparoConcluir.setIdTecnico(utils.getIdUsuarioLogado());
+
+        Reparo salvo = reparoRepository.save(reparoConcluir);
+
+        log.debug("Reparo salvo {}", salvo);
+
+    }
+
+    public void concluirReparoDescarte(Long id, String motivo) {
         Reparo reparoConcluir = reparoRepository.findById(id).orElseThrow();
 
         if(reparoConcluir == null){
@@ -95,17 +134,23 @@ public class ReparoService {
         // Historico
             HistoricoDoacao historicoDoacao = new HistoricoDoacao();
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
-            historicoDoacao.setObservacao("Doacao em reparo concluido");
+            historicoDoacao.setObservacao("Doacao para descarte");
             historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
-            historicoDoacao.setStatus(Status.APROVADO);
+            historicoDoacao.setStatus(Status.DESCARTE);
 
             historicoDoacao.setDoacao(doacao);
 
+            doacao.setStatus(Status.DESCARTE);
             doacao.getHistorico().add(historicoDoacao);
+
+            reparoConcluir.setDataFim(LocalDateTime.now());
         // fim historico
 
+        reparoConcluir.setDoacao(doacao);
+        reparoConcluir.setConclusao(motivo);
+        reparoConcluir.setIdTecnico(utils.getIdUsuarioLogado());
 
-
+        reparoRepository.save(reparoConcluir);
     }
 
 }

@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.sistemadoacao.backend.config.Utils;
 import com.sistemadoacao.backend.dto.ReparoResponseDTO;
+
 import com.sistemadoacao.backend.service.ReparoService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -83,6 +86,38 @@ public class ReparoController {
         } catch (Exception e) {
             log.error("Erro ao salvar reparo: {}", e.getMessage());    
             return ResponseEntity.status(500).build();
+        }
+    }
+
+    @Operation(summary = "Concluir reparo", description = "Altera o status da doação para Aprovado e adiciona data de fim de reparo.")
+    @ApiResponse(responseCode = "200", description = "Reparo concluido com sucesso")
+    @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("concluir/{id}")
+    public ResponseEntity<Void> concluirReparo(@RequestBody String motivo, @PathVariable Long id) {
+        try {
+            reparoService.concluirReparoAprovacao(id, motivo);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @Operation(summary = "Reparo sem conserto", description = "Altera o status da doação para Descarte e adiciona data de fim de reparo.")
+    @ApiResponse(responseCode = "200", description = "Doacao para descarte com sucesso")
+    @ApiResponse(responseCode = "404", description = "Reparo não encontrada", content = @Content)
+    @ApiResponse(responseCode = "500", description = "Erro no servidor", content = @Content)
+    @PatchMapping("descarte/{id}")
+    public ResponseEntity<Void> concluirReparoDescarte(@RequestBody String motivo, @PathVariable Long id) {
+        try {
+            reparoService.concluirReparoDescarte(id, motivo);
+            return ResponseEntity.status(HttpStatus.OK).build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        } catch (Exception e2) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
