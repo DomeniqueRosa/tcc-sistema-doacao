@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
@@ -43,6 +44,19 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
+    @PostMapping("/admin")
+    @Operation(summary = "Cadastro de usuario Administrador", description = "Cadastra um novo usuario no banco com permissao de administrador")
+    @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMINISTRADOR pode cadastrar um novo administrador.", content = @Content)
+    public ResponseEntity<Administrador> cadastrarAdmin(@RequestBody Administrador admin) {
+        Administrador novo;
+        try {
+            novo = usuarioService.saveAdmin(admin);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+        return ResponseEntity.status(HttpStatus.CREATED).body(novo);
+    }
+
     @PostMapping("/tecnico")
     @Operation(summary = "Cadastro de usuario Tecnico", description = "Cadastra um novo usuario no banco com permissao de tecnico")
     @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMIN pode cadastrar um novo tecnico.", content = @Content)
@@ -58,6 +72,7 @@ public class UsuarioController {
         }
         return ResponseEntity.status(HttpStatus.CREATED).body(novo);
     }
+    
 
     @PostMapping
     @Operation(summary = "Cadastrar usuário", description = "Cadastra um novo usuário no banco de dados com email unico. ")

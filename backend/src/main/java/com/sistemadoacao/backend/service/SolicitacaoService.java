@@ -8,7 +8,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.sistemadoacao.backend.dto.SolicitacaoRequest;
+import com.sistemadoacao.backend.dto.SolicitacaoRequestDTO;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.HistoricoDoacao;
 import com.sistemadoacao.backend.model.HistoricoSolicitacao;
@@ -32,7 +32,7 @@ public class SolicitacaoService {
         this.doacaoRepository = doacaoRepository;
     }
 
-    public Solicitacao save(SolicitacaoRequest solicitacao, Long usuarioId) {
+    public Solicitacao save(SolicitacaoRequestDTO solicitacao, Long usuarioId) {
 
         // Lógica de negócio: Solicitação sempre inicia com status PENDENTE
         Solicitacao solicitacaoEntity = new Solicitacao();
@@ -98,7 +98,7 @@ public class SolicitacaoService {
     }
 
     
-    public Solicitacao uptadeSolicitacao(Long id, SolicitacaoRequest dto) {
+    public Solicitacao uptadeSolicitacao(Long id, SolicitacaoRequestDTO dto) {
         try {
             Solicitacao existente = findById(id);
 

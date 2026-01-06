@@ -4,7 +4,7 @@ public enum Status {
     APROVADO_IA,
     APROVADO,
     REPROVADO,
-    EM_REPARO,
+    REPARO,
     DOADO,
     DESCARTE,
     PENDENTE,

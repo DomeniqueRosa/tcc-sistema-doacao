@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.sistemadoacao.backend.dto.SolicitacaoRequest;
+import com.sistemadoacao.backend.dto.SolicitacaoRequestDTO;
 import com.sistemadoacao.backend.model.Solicitacao;
 import com.sistemadoacao.backend.service.SolicitacaoService;
 
@@ -46,7 +46,7 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Solicitacao> cadastrarSolicitacao(@RequestBody SolicitacaoRequest dto,
+    public ResponseEntity<Solicitacao> cadastrarSolicitacao(@RequestBody SolicitacaoRequestDTO dto,
             @AuthenticationPrincipal Pessoa principal) {
         if (principal == null) {
             log.error("O objeto principal está nulo. Verifique se o SecurityFilter está injetando o usuário.");
@@ -125,7 +125,7 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "200", description = "Solicitação atualizada com sucesso")
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Solicitacao> atualizarSolicitacao(@PathVariable Long id, @RequestBody SolicitacaoRequest dto) {
+    public ResponseEntity<Solicitacao> atualizarSolicitacao(@PathVariable Long id, @RequestBody SolicitacaoRequestDTO dto) {
         log.info("Atualizando solicitação ID: {}", id);
         
         try {

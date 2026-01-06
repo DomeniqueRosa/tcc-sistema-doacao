@@ -7,6 +7,8 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -89,6 +91,7 @@ public class Doacao {
     private List<HistoricoDoacao> historico = new ArrayList<>();
     
     @OneToMany(mappedBy = "doacao", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("doacao")
     private List<Reparo> reparos = new ArrayList<>();
 
     @ManyToOne

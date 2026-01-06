@@ -10,9 +10,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
+import com.sistemadoacao.backend.repository.AdministradorRepository;
 import com.sistemadoacao.backend.repository.PessoaRepository;
 import com.sistemadoacao.backend.repository.TecnicoRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
@@ -30,18 +32,20 @@ public class UsuarioService {
     private final PessoaRepository pessoaRepository;
     private final UsuarioRepository usuarioRepository;
     private final TecnicoRepository tecnicoRepository;
+    private final AdministradorRepository admRepository;
     private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
     private static SecureRandom random = new SecureRandom();
     private static final String DATA_FOR_RANDOM = "abcdefghijklmnopqrstuvwxyz" + "abcdefghijklmnopqrstuvwxyz".toUpperCase() + "0123456789";
     
    
-    public UsuarioService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder, TecnicoRepository tecnicoRepository, PessoaRepository pessoaRepository) {
+    public UsuarioService(UsuarioRepository usuarioRepository, EmailService emailService, PasswordEncoder passwordEncoder, TecnicoRepository tecnicoRepository, PessoaRepository pessoaRepository , AdministradorRepository admRepositor) {
         this.usuarioRepository = usuarioRepository;
         this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
         this.tecnicoRepository = tecnicoRepository;
         this.pessoaRepository = pessoaRepository;
+        this.admRepository = admRepositor;
     }
 
     // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
@@ -172,6 +176,33 @@ public class UsuarioService {
             sb.append(rndChar);
         }
         return sb.toString();
+    }
+
+    public Administrador saveAdmin(Administrador adm) {
+        Administrador novo = new Administrador();
+
+        if (pessoaRepository.existsByEmail(adm.getEmail())) {
+            throw new RuntimeException("Já existe um usuário cadastrado com este e-mail.");
+        }
+
+        try {
+            novo.setNome(adm.getNome());
+            novo.setCpf(adm.getCpf());
+            novo.setEmail(adm.getEmail());
+            String senhaCript = passwordEncoder.encode(adm.getSenha());
+            novo.setSenha(senhaCript);
+
+            admRepository.save(novo);
+          
+            emailService.enviarEmailCadastro(novo.getEmail(), novo.getNome(),"");
+            
+        } catch (Exception e) {
+            log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
+        }
+        log.info("Salvando novo usuário: {}", novo.getEmail());
+        // TODO: Retornar um AdmResponseDTO ou pessoaDto
+        return novo;
+        
     }
 
 }

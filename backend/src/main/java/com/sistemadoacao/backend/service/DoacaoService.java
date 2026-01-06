@@ -3,16 +3,15 @@ package com.sistemadoacao.backend.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.sistemadoacao.backend.config.Utils;
 import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.dto.GraficoDTO;
 import com.sistemadoacao.backend.dto.GraficoEquipamentoDTO;
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
 import com.sistemadoacao.backend.model.HistoricoDoacao;
-import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
 import com.sistemadoacao.backend.repository.UsuarioRepository;
@@ -26,10 +25,12 @@ public class DoacaoService {
 
     private final DoacaoRepository repository;
     private final UsuarioRepository usuarioRepository;
+    private final Utils utils;
 
-    public DoacaoService(DoacaoRepository repository, UsuarioRepository usuarioRepository) {
+    public DoacaoService(DoacaoRepository repository, UsuarioRepository usuarioRepository, Utils utils) {
         this.repository = repository;
         this.usuarioRepository = usuarioRepository;
+        this.utils = utils;
     }
 
     public Doacao save(@NonNull Doacao novaDoacao) {
@@ -38,12 +39,12 @@ public class DoacaoService {
         HistoricoDoacao histDoacao = new HistoricoDoacao();
         histDoacao.setDataAlteracao(LocalDateTime.now());
         histDoacao.setObservacao("Doação cadastrada em sistema.");
-        histDoacao.setExecutor(getNomeUsuarioLogado());
+        histDoacao.setExecutor(utils.getNomeUsuarioLogado());
         histDoacao.setStatus(novaDoacao.getStatus());
 
         histDoacao.setDoacao(novaDoacao);
         novaDoacao.getHistorico().add(histDoacao);
-
+        novaDoacao.setDoadorId(utils.getIdUsuarioLogado());
         return repository.save(novaDoacao);
 
     }
@@ -82,7 +83,7 @@ public class DoacaoService {
             HistoricoDoacao historicoDoacao = new HistoricoDoacao();
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
             historicoDoacao.setObservacao("Doacao aprovada");
-            historicoDoacao.setExecutor(getNomeUsuarioLogado());
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
             historicoDoacao.setStatus(Status.APROVADO);
 
             historicoDoacao.setDoacao(doacaoAprovar);
@@ -111,7 +112,7 @@ public class DoacaoService {
             HistoricoDoacao historicoDoacao = new HistoricoDoacao();
             historicoDoacao.setDataAlteracao(LocalDateTime.now());
             historicoDoacao.setObservacao(motivo);
-            historicoDoacao.setExecutor(getNomeUsuarioLogado());
+            historicoDoacao.setExecutor(utils.getNomeUsuarioLogado());
             historicoDoacao.setStatus(Status.REPROVADO);
 
             historicoDoacao.setDoacao(doacaoReprovar);
@@ -207,17 +208,11 @@ public class DoacaoService {
                 repository.countByStatus(Status.APROVADO),
                 repository.countByStatus(Status.APROVADO_IA),
                 repository.countByStatus(Status.REPROVADO),
-                repository.countByStatus(Status.EM_REPARO),
+                repository.countByStatus(Status.REPARO),
                 grafico,
                 graficoEquipamento);
     }
 
-    private String getNomeUsuarioLogado() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof Pessoa pessoa) {
-            return pessoa.getNome(); 
-        }
-        return "Sistema"; 
-    }
+    
 
 }

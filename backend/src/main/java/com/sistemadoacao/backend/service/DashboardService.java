@@ -28,7 +28,7 @@ public class DashboardService {
                 doacaoRepository.countByStatus(Status.APROVADO),
                 doacaoRepository.countByStatus(Status.APROVADO_IA),
                 doacaoRepository.countByStatus(Status.REPROVADO),
-                doacaoRepository.countByStatus(Status.EM_REPARO),
+                doacaoRepository.countByStatus(Status.REPARO),
                 doacaoRepository.findDoacoesMensais().stream()
                         .map(p -> {
                             Object[] array = (Object[]) p; // Cast para array para acessar os índices

@@ -57,4 +57,8 @@ public class Pessoa implements UserDetails {
         return this.email;
     }
 
+    public Long getId(){
+        return this.id;
+    }
+
 }
