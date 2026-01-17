@@ -24,6 +24,7 @@ public class SecurityFilter extends OncePerRequestFilter {
         this.repository = repository;
     }
 
+    @SuppressWarnings("null")
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {

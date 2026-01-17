@@ -5,7 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from "@angular/material/input";
 import { FormsModule, NgForm, NgModel } from "@angular/forms";
 import { MatButtonModule } from '@angular/material/button';
-import { Usuario } from './usuario';
+import { Usuario } from '../models/usuario';
 import { UsuarioService } from '../services/usuario.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { NgxMaskDirective } from 'ngx-mask';

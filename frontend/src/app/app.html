@@ -1,12 +1,36 @@
-<mat-toolbar color="primary">
-  <span class="nome">Sistema de Doação</span>
-  
-  <span class="spacer"></span> 
-  
-  <div class="menu-links"> 
-    <a routerLink="/cadastro">Formulário</a>
-    <a routerLink="/Consulta">Consulta</a>
-  </div>
+<mat-toolbar color="surface" class="app-bar">
+  <button mat-icon-button (click)="sidenav.toggle()">
+    <mat-icon>menu</mat-icon>
+  </button>
+  <span class="title-centered">Conexão Solidária</span>
+  <span class="spacer"></span>
 </mat-toolbar>
 
-<router-outlet></router-outlet>
+<mat-sidenav-container class="app-container main-container">
+
+  <mat-sidenav  #sidenav mode="side" opened="true" class="navigation-drawer">
+    <mat-nav-list>
+      <a mat-list-item routerLink="/doacao/dashboard">
+
+        <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="/cadastro">
+
+        <span matListItemTitle>Formulário</span>
+      </a>
+      <a mat-list-item routerLink="/consulta">
+
+        <span matListItemTitle>Consulta</span>
+      </a>
+
+
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="conteudo-principal">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

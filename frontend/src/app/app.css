@@ -1,26 +1,48 @@
-mat-toolbar {
-  background-color: #f0f0f0 !important;
-  color: #333333;
-  justify-content: space-between;
-}
-
-.spacer {
-  flex: 1 1 auto;
-}
-
-.nome {
-  font-size: 20px;
+.app-bar {
+  display: flex;
+  justify-content: space-between; 
   align-items: center;
-  color: #333333;
+  background-color: var(--mat-sys-surface); 
+  color: var(--mat-sys-on-surface);
 }
 
-.menu-links a {
-  color: #333333;
-  font-size: 14px;
-  margin-left: 15px;
-  text-decoration: none;
+.title-centered {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: 'Roboto', sans-serif;
+ 
 }
 
-mat-toolbar a {
-  color: #333333;
+/* Container principal ocupa o resto da tela */
+.main-container {
+  height: calc(100vh - 64px); /* Altura total menos a toolbar */
 }
+
+
+.navigation-drawer {
+  width: 300px;
+  border: none;
+  background-color: var(--mat-sys-surface-container-low); 
+  border-radius: 0 16px 16px 0; 
+}
+
+/* Centralizar o título da App Bar */
+.app-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 400;
+}
+
+.drawer-header {
+  padding: 16px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+/* 1. Garante que o container ocupe toda a altura disponível */
+.main-container {
+   height: calc(100vh - 64px);
+}
+

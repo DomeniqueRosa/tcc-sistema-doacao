@@ -6,8 +6,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -24,6 +26,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.websocket.server.PathParam;
+import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,7 +38,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequestMapping("/usuarios")
 @CrossOrigin(origins = "http://localhost:4200")
 @Tag(name = "Usuários", description = "Endpoints para gerenciamento de usuários")
-
+@Slf4j
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -45,6 +48,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/admin")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Cadastro de usuario Administrador", description = "Cadastra um novo usuario no banco com permissao de administrador")
     @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMINISTRADOR pode cadastrar um novo administrador.", content = @Content)
     public ResponseEntity<Administrador> cadastrarAdmin(@RequestBody Administrador admin) {
@@ -58,6 +62,7 @@ public class UsuarioController {
     }
 
     @PostMapping("/tecnico")
+    @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Cadastro de usuario Tecnico", description = "Cadastra um novo usuario no banco com permissao de tecnico")
     @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMIN pode cadastrar um novo tecnico.", content = @Content)
     public ResponseEntity<Tecnico> cadastrarTecnico(@RequestBody Tecnico tecnico) {
@@ -89,10 +94,11 @@ public class UsuarioController {
     public ResponseEntity<UsuarioDTO> cadastrarUsuario(@RequestBody Usuario usuario) {
         UsuarioDTO novoUsuario;
         try {
+            log.info("iniciando cadastro" + usuario);
             novoUsuario = usuarioService.saveUsuario(usuario);
 
         } catch (Exception e) {
-
+            log.error("erro:" + e);
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
@@ -100,6 +106,7 @@ public class UsuarioController {
     }
 
     @GetMapping()
+    // TODO: Adicionar @PreAuthorize("hasRole('ADMINISTRADOR')") pois só adm pode ver todos os usuarios
     @Operation(summary = "Listar todos os usuários")
     @ApiResponse(responseCode = "200", description = "Usuários encontrados com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
@@ -127,7 +134,8 @@ public class UsuarioController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar usuário pelo ID")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
+    @Operation(summary = "Deletar usuário pelo ID", description = "Excluir usuario permitido apenas para ADMINISTRADOR ou para o próprio usuário dono do ID")
     @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
@@ -147,7 +155,8 @@ public class UsuarioController {
     }
 
     @PatchMapping("/{id}")
-    @Operation(summary = "Atualizar usuário pelo ID", description = "Atualiza os dados de um usuário existente pelo ID.")
+    @PreAuthorize("hasRole('ADMINISTRADOR') or #id == authentication.principal.id")
+    @Operation(summary = "Atualizar usuário pelo ID", description = "Atualiza os dados de um usuário existente pelo ID permitido pelo ADMINISTRADOR ou usuario do ID.")
     @ApiResponse(responseCode = "200", description = "Usuário atualizado com sucesso")
     @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
