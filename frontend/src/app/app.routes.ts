@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
-import { CadastroComponent } from './cadastro/cadastro.component';
-import { ConsultaComponent } from './consulta/consulta.component';
+import { PaginaCadastroUsuario } from './features/usuarios/pages/pagina-cadastro-usuarios/pagina-cadastrar-usuario';
+import { PaginaListarUsuarios } from './features/usuarios/pages/pagina-listar-usuarios/pagina-listar-usuarios';
 
 export const routes: Routes = [
-    {path: 'cadastro', component: CadastroComponent },
-    {path: 'consulta', component: ConsultaComponent }
+    {path: 'user-cadastro', component: PaginaCadastroUsuario },
+    {path: 'user-listagem', component: PaginaListarUsuarios }
 ];
