@@ -1,13 +1,13 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CadastroComponent } from './pagina-cadastrar-usuario';
+import { PaginaCadastroUsuario } from './pagina-cadastrar-usuario';
 
-describe('CadastroComponent', () => {
-  let component: CadastroComponent;
-  let fixture: ComponentFixture<CadastroComponent>;
+describe('PaginaCadastroUsuario', () => {
+  let component: PaginaCadastroUsuario;
+  let fixture: ComponentFixture<PaginaCadastroUsuario>;
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CadastroComponent);
+    fixture = TestBed.createComponent(PaginaCadastroUsuario);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });
