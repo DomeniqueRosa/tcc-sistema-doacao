@@ -1,1 +1,17 @@
-<p>menu-lateral works!</p>
+<div class="menu">
+
+@for (item of itensMenu; track item.rota) {
+
+  <a class="menu-item" [routerLink]="item.rota">
+
+    <mat-icon>{{item.icon}}</mat-icon>
+
+    <span class="menu-text">
+      {{item.label}}
+    </span>
+
+  </a>
+
+}
+
+</div>
