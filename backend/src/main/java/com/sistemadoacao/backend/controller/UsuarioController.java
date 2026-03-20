@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import com.sistemadoacao.backend.dto.AdministradorDTO;
+import com.sistemadoacao.backend.dto.TecnicoDTO;
 import com.sistemadoacao.backend.dto.UsuarioDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
@@ -51,7 +53,7 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Cadastro de usuario Administrador", description = "Cadastra um novo usuario no banco com permissao de administrador")
     @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMINISTRADOR pode cadastrar um novo administrador.", content = @Content)
-    public ResponseEntity<Administrador> cadastrarAdmin(@RequestBody Administrador admin) {
+    public ResponseEntity<Administrador> cadastrarAdmin(@RequestBody AdministradorDTO admin) {
         Administrador novo;
         try {
             novo = usuarioService.saveAdmin(admin);
@@ -65,7 +67,7 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMINISTRADOR')")
     @Operation(summary = "Cadastro de usuario Tecnico", description = "Cadastra um novo usuario no banco com permissao de tecnico")
     @ApiResponse(responseCode = "403", description = "Não autorizado, apenas usuario com permissao de ADMIN pode cadastrar um novo tecnico.", content = @Content)
-    public ResponseEntity<Tecnico> cadastrarTecnico(@RequestBody Tecnico tecnico) {
+    public ResponseEntity<Tecnico> cadastrarTecnico(@RequestBody TecnicoDTO tecnico) {
         Tecnico novo;
 
         try {
@@ -91,7 +93,7 @@ public class UsuarioController {
             """)))
     @ApiResponse(responseCode = "409", description = "Email já cadastrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioDTO> cadastrarUsuario(@RequestBody Usuario usuario) {
+    public ResponseEntity<UsuarioDTO> cadastrarUsuario(@RequestBody UsuarioDTO usuario) {
         UsuarioDTO novoUsuario;
         try {
             log.info("iniciando cadastro" + usuario);
