@@ -9,6 +9,8 @@ import java.util.List;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sistemadoacao.backend.dto.AdministradorDTO;
+import com.sistemadoacao.backend.dto.TecnicoDTO;
 import com.sistemadoacao.backend.dto.UsuarioDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
@@ -50,18 +52,18 @@ public class UsuarioService {
 
     // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
     @Transactional
-    public UsuarioDTO saveUsuario(Usuario usuario) {
+    public UsuarioDTO saveUsuario(UsuarioDTO usuario) {
         Usuario novo = new Usuario();
 
-        if (pessoaRepository.existsByEmail(usuario.getEmail())) {
+        if (pessoaRepository.existsByEmail(usuario.email())) {
             throw new RuntimeException("Já existe um usuário cadastrado com este e-mail.");
         }
 
         try {
-            novo.setNome(usuario.getNome());
-            novo.setCpf(usuario.getCpf());
-            novo.setEmail(usuario.getEmail());
-            String senhaCript = passwordEncoder.encode(usuario.getSenha());
+            novo.setNome(usuario.nome());
+            novo.setCpf(usuario.cpf());
+            novo.setEmail(usuario.email());
+            String senhaCript = passwordEncoder.encode(usuario.senha());
 
             novo.setSenha(senhaCript);
             usuarioRepository.save(novo);
@@ -71,7 +73,7 @@ public class UsuarioService {
         } catch (Exception e) {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
-        log.info("Salvando novo usuário: {}", usuario.getEmail());
+        log.info("Salvando novo usuário: {}", usuario.email());
         return new UsuarioDTO(novo);
     }
 
@@ -133,20 +135,20 @@ public class UsuarioService {
         log.info("Senha alterada com sucesso para o usuário ID: {}", id);
     }
 
-    public Tecnico saveTecnico(Tecnico tecnico) {
+    public Tecnico saveTecnico(TecnicoDTO tecnico) {
         // TODO: implementar alterar senha
         Tecnico novo = new Tecnico();
 
-        if (pessoaRepository.existsByEmail(tecnico.getEmail())) {
+        if (pessoaRepository.existsByEmail(tecnico.usuario().email())) {
             throw new RuntimeException("Já existe um usuário cadastrado com este e-mail.");
         }
 
         try {
-            novo.setNome(tecnico.getNome());
-            novo.setCpf(tecnico.getCpf());
-            novo.setEmail(tecnico.getEmail());
-            novo.setCurso(tecnico.getCurso());
-            novo.setGrr(tecnico.getGrr());
+            novo.setNome(tecnico.usuario().nome());
+            novo.setCpf(tecnico.usuario().cpf());
+            novo.setEmail(tecnico.usuario().email());
+            novo.setCurso(tecnico.curso());
+            novo.setGrr(tecnico.GRR());
             var novaSenha = gerarSenha(4);
             String senhaCript = passwordEncoder.encode(novaSenha);
 
@@ -158,8 +160,8 @@ public class UsuarioService {
         } catch (Exception e) {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
-        log.info("Salvando novo usuário: {}", tecnico.getEmail());
-        // TODO: Retornar um TecnicoResponseDTO
+        log.info("Salvando novo usuário: {}", tecnico.usuario().email());
+        // TODO: Retornar um TecnicoDTO
         return novo;
     }
 
@@ -178,18 +180,18 @@ public class UsuarioService {
         return sb.toString();
     }
 
-    public Administrador saveAdmin(Administrador adm) {
+    public Administrador saveAdmin(AdministradorDTO adm) {
         Administrador novo = new Administrador();
 
-        if (pessoaRepository.existsByEmail(adm.getEmail())) {
+        if (pessoaRepository.existsByEmail(adm.usuario().email())) {
             throw new RuntimeException("Já existe um usuário cadastrado com este e-mail.");
         }
 
         try {
-            novo.setNome(adm.getNome());
-            novo.setCpf(adm.getCpf());
-            novo.setEmail(adm.getEmail());
-            String senhaCript = passwordEncoder.encode(adm.getSenha());
+            novo.setNome(adm.usuario().nome());
+            novo.setCpf(adm.usuario().cpf());
+            novo.setEmail(adm.usuario().email());
+            String senhaCript = passwordEncoder.encode(adm.usuario().senha());
             novo.setSenha(senhaCript);
 
             admRepository.save(novo);
