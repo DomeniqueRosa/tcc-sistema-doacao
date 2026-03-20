@@ -16,7 +16,8 @@ public record UsuarioDTO(
     String email,
     String perfil,
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    LocalDate dataCadastro
+    LocalDate dataCadastro,
+    String senha
 ) {
     public UsuarioDTO(Pessoa pessoa) {
         this(
@@ -25,7 +26,8 @@ public record UsuarioDTO(
             pessoa.getCpf(),
             pessoa.getEmail(),
             pessoa.getClass().getSimpleName(),
-            pessoa.getDataCadastro()
+            pessoa.getDataCadastro(),
+            pessoa.getSenha()
         );
     }
 
