@@ -67,12 +67,12 @@ public class DoacaoService {
                 .toList();
     }
 
-    public Doacao findByiD(Long id){
+    public Doacao findByiD(@NonNull Long id){
         return repository.findById(id).orElseThrow(() -> new RuntimeException("Doacao nao encontada."));
     }
 
 
-    public Doacao aprovarDoacao(Long id) {
+    public Doacao aprovarDoacao(@NonNull Long id) {
         if (id == null) {
             throw new IllegalArgumentException("ID nao pode ser nulo");
         }
@@ -100,10 +100,7 @@ public class DoacaoService {
         }
     }
 
-    public Doacao reprovarDoacao(Long id, String motivo) {
-        if (id == null) {
-            throw new IllegalArgumentException("ID nao pode ser nulo");
-        }
+    public Doacao reprovarDoacao(@NonNull Long id, String motivo) {
 
         try {
 
