@@ -136,7 +136,6 @@ public class UsuarioService {
     }
 
     public Tecnico saveTecnico(TecnicoDTO tecnico) {
-        // TODO: implementar alterar senha
         Tecnico novo = new Tecnico();
 
         if (pessoaRepository.existsByEmail(tecnico.usuario().email())) {
@@ -161,7 +160,7 @@ public class UsuarioService {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         log.info("Salvando novo usuário: {}", tecnico.usuario().email());
-        // TODO: Retornar um TecnicoDTO
+        
         return novo;
     }
 
@@ -202,9 +201,11 @@ public class UsuarioService {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         log.info("Salvando novo usuário: {}", novo.getEmail());
-        // TODO: Retornar um AdmResponseDTO ou pessoaDto
         return novo;
         
     }
 
+    public boolean getUsuarioByEmail (String email) {
+        return pessoaRepository.existsByEmail(email);
+    }
 }
