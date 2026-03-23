@@ -1,5 +1,5 @@
 package com.sistemadoacao.backend.dto;
 
-public record AdministradorDTO(UsuarioDTO usuario) {
+public record AdministradorDTO(UsuarioRequestDTO usuario) {
 
 }

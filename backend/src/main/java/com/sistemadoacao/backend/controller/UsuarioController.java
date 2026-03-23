@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import com.sistemadoacao.backend.dto.AdministradorDTO;
 import com.sistemadoacao.backend.dto.TecnicoDTO;
-import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.dto.UsuarioRequestDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
@@ -93,8 +93,8 @@ public class UsuarioController {
             """)))
     @ApiResponse(responseCode = "409", description = "Email já cadastrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioDTO> cadastrarUsuario(@RequestBody UsuarioDTO usuario) {
-        UsuarioDTO novoUsuario;
+    public ResponseEntity<UsuarioRequestDTO> cadastrarUsuario(@RequestBody UsuarioRequestDTO usuario) {
+        UsuarioRequestDTO novoUsuario;
         try {
             log.info("iniciando cadastro" + usuario);
             novoUsuario = usuarioService.saveUsuario(usuario);
@@ -122,13 +122,13 @@ public class UsuarioController {
     @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioDTO> listarUsuarioPorId(@PathParam(value = "") Long id) {
+    public ResponseEntity<UsuarioRequestDTO> listarUsuarioPorId(@PathParam(value = "") Long id) {
         if (id == null) {
             return ResponseEntity.badRequest().build();
         }
         try {
             Usuario usuarioEntidade = usuarioService.getUsuarioById(id);
-            UsuarioDTO usuario = new UsuarioDTO(usuarioEntidade);
+            UsuarioRequestDTO usuario = new UsuarioRequestDTO(usuarioEntidade);
             return ResponseEntity.ok(usuario);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
