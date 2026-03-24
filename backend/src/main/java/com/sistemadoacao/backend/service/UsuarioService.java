@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.sistemadoacao.backend.dto.AdministradorDTO;
 import com.sistemadoacao.backend.dto.TecnicoDTO;
 import com.sistemadoacao.backend.dto.UsuarioRequestDTO;
+import com.sistemadoacao.backend.dto.UsuarioResponseDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
@@ -52,7 +53,7 @@ public class UsuarioService {
 
     // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
     @Transactional
-    public UsuarioRequestDTO saveUsuario(UsuarioRequestDTO usuario) {
+    public UsuarioResponseDTO saveUsuario(UsuarioRequestDTO usuario) {
         Usuario novo = new Usuario();
 
         if (pessoaRepository.existsByEmail(usuario.email())) {
@@ -74,7 +75,7 @@ public class UsuarioService {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         log.info("Salvando novo usuário: {}", usuario.email());
-        return new UsuarioRequestDTO(novo);
+        return new UsuarioResponseDTO(novo.getId(), novo.getNome(), novo.getCpf(), novo.getEmail(), novo.getClass().getSimpleName(), novo.getDataCadastro().toString());
     }
 
     public List<Pessoa> getAllUsuarios() {

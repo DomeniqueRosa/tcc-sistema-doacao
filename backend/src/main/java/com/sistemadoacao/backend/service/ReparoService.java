@@ -16,6 +16,7 @@ import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
 import com.sistemadoacao.backend.repository.ReparoRepository;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -37,7 +38,7 @@ public class ReparoService {
         return reparos.stream().map(reparo -> new ReparoResponseDTO(reparo)).toList();
     }
 
-    public ReparoResponseDTO save(String descricao, Long id_usuario, Long id_doacao) {
+    public ReparoResponseDTO save(String descricao, @NonNull Long id_usuario, @NonNull Long id_doacao) {
         try {
 
             Doacao doacao = doacaoRepository.findById(id_doacao)
@@ -79,7 +80,7 @@ public class ReparoService {
         return reparos.stream().map(reparo -> new ReparoResponseDTO(reparo)).toList();
     }
 
-    public void concluirReparoAprovacao(Long id, String motivo) {
+    public void concluirReparoAprovacao(@NonNull Long id, String motivo) {
 
         Reparo reparoConcluir = reparoRepository.findById(id).orElseThrow();
 
@@ -118,7 +119,7 @@ public class ReparoService {
 
     }
 
-    public void concluirReparoDescarte(Long id, String motivo) {
+    public void concluirReparoDescarte(@NonNull Long id, String motivo) {
         Reparo reparoConcluir = reparoRepository.findById(id).orElseThrow();
 
         if(reparoConcluir == null){
