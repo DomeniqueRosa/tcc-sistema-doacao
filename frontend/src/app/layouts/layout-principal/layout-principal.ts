@@ -1,21 +1,27 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-
-import { MatSidenavModule } from '@angular/material/sidenav';
-
-import { MenuLateral } from './menu-lateral/menu-lateral';
+import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { BarraSuperior } from './barra-superior/barra-superior';
+import { MenuLateral } from './menu-lateral/menu-lateral';
 
 @Component({
   selector: 'app-layout-principal',
   standalone: true,
   imports: [
+    CommonModule,
     RouterOutlet,
     MatSidenavModule,
-    MenuLateral,
-    BarraSuperior
+    BarraSuperior,
+    MenuLateral
   ],
   templateUrl: './layout-principal.html',
   styleUrl: './layout-principal.css'
 })
-export class LayoutPrincipal {}
+export class LayoutPrincipal {
+  @ViewChild('drawer') drawer!: MatSidenav;
+
+  toggleMenu(): void {
+    this.drawer.toggle();
+  }
+}

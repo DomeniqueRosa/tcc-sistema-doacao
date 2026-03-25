@@ -7,10 +7,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { UsuarioService } from '../../../../core/services/usuario.service';
-import { TecnicoCadastroRequest } from '../../../../core/models/usuario.model';
+import { UsuarioCadastroRequest } from '../../../../core/models/usuario.model';
 
 @Component({
-  selector: 'app-pagina-cadastrar-tecnico',
+  selector: 'app-pagina-cadastrar-usuario',
   standalone: true,
   imports: [
     CommonModule,
@@ -21,54 +21,50 @@ import { TecnicoCadastroRequest } from '../../../../core/models/usuario.model';
     MatButtonModule,
     MatSnackBarModule
   ],
-  templateUrl: './pagina-cadastrar-tecnico.html',
-  styleUrl: './pagina-cadastrar-tecnico.css'
+  templateUrl: './pagina-cadastrar-usuario.html',
+  styleUrl: './pagina-cadastrar-usuario.css'
 })
-export class PaginaCadastrarTecnico {
+export class PaginaCadastrarUsuario {
   private fb = inject(FormBuilder);
   private usuarioService = inject(UsuarioService);
   private snackBar = inject(MatSnackBar);
 
   carregando = false;
 
-  tecnicoForm = this.fb.group({
+  cadastroForm = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
     cpf: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
     email: ['', [Validators.required, Validators.email]],
-    senha: ['', [Validators.required, Validators.minLength(6)]],
-    grr: ['', [Validators.required]],
-    curso: ['', [Validators.required]]
+    senha: ['', [Validators.required, Validators.minLength(6)]]
   });
 
   salvar(): void {
-    if (this.tecnicoForm.invalid) {
-      this.tecnicoForm.markAllAsTouched();
+    if (this.cadastroForm.invalid) {
+      this.cadastroForm.markAllAsTouched();
       return;
     }
 
     this.carregando = true;
 
-    const dados: TecnicoCadastroRequest = {
-      nome: this.tecnicoForm.value.nome!,
-      cpf: this.tecnicoForm.value.cpf!,
-      email: this.tecnicoForm.value.email!,
-      senha: this.tecnicoForm.value.senha!,
-      grr: this.tecnicoForm.value.grr!,
-      curso: this.tecnicoForm.value.curso!
+    const dados: UsuarioCadastroRequest = {
+      nome: this.cadastroForm.value.nome!,
+      cpf: this.cadastroForm.value.cpf!,
+      email: this.cadastroForm.value.email!,
+      senha: this.cadastroForm.value.senha!
     };
 
-    this.usuarioService.cadastrarTecnico(dados).subscribe({
+    this.usuarioService.cadastrarUsuario(dados).subscribe({
       next: () => {
-        this.snackBar.open('Aluno técnico cadastrado com sucesso!', 'Fechar', {
+        this.snackBar.open('Usuário cadastrado com sucesso!', 'Fechar', {
           duration: 3000
         });
-        this.tecnicoForm.reset();
+        this.cadastroForm.reset();
         this.carregando = false;
       },
       error: (erro) => {
-        console.error('Erro ao cadastrar técnico:', erro);
+        console.error('Erro ao cadastrar usuário:', erro);
 
-        this.snackBar.open('Erro ao cadastrar aluno técnico.', 'Fechar', {
+        this.snackBar.open('Erro ao cadastrar usuário.', 'Fechar', {
           duration: 3000
         });
 
@@ -78,7 +74,7 @@ export class PaginaCadastrarTecnico {
   }
 
   campoTemErro(nomeCampo: string, erro: string): boolean {
-    const campo = this.tecnicoForm.get(nomeCampo);
+    const campo = this.cadastroForm.get(nomeCampo);
     return !!campo && campo.hasError(erro) && campo.touched;
   }
 }

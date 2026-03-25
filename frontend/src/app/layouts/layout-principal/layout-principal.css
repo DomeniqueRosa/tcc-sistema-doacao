@@ -1,12 +1,24 @@
-.sidenav-container {
+.layout-container {
   height: 100vh;
+  background: #fafafa;
 }
 
-.sidenav {
-  width: 240px;
-  overflow: hidden;
+.app-sidenav {
+  width: 250px;
+  border-right: none;
+  background: #f4eef8;
 }
 
-.conteudo {
-  padding: 20px;
+.main-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content-area {
+  flex: 1;
+  padding: 24px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  background: #fafafa;
 }

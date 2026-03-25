@@ -1,23 +1,20 @@
-<mat-sidenav-container class="sidenav-container">
+<mat-sidenav-container class="layout-container">
 
-  <mat-sidenav #menu mode="side" opened class="sidenav">
+  <mat-sidenav
+    #drawer
+    mode="side"
+    opened
+    class="app-sidenav">
 
     <app-menu-lateral></app-menu-lateral>
-
   </mat-sidenav>
 
-  <mat-sidenav-content>
+  <mat-sidenav-content class="main-content">
+    <app-barra-superior (menuClick)="toggleMenu()"></app-barra-superior>
 
-    <app-barra-superior
-      (toggleMenu)="menu.toggle()">
-    </app-barra-superior>
-
-    <div class="conteudo">
+    <main class="content-area">
       <router-outlet></router-outlet>
-    </div>
-
-    <router-outlet></router-outlet>
-
+    </main>
   </mat-sidenav-content>
 
 </mat-sidenav-container>

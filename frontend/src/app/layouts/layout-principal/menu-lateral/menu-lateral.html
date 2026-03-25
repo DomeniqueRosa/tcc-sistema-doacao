@@ -1,17 +1,89 @@
-<div class="menu">
+<aside class="sidebar">
+  <nav class="nav-menu">
 
-@for (item of itensMenu; track item.rota) {
+    <!-- USUÁRIO -->
+    <ng-container *ngIf="perfil === 'USUARIO'">
 
-  <a class="menu-item" [routerLink]="item.rota">
+      <a routerLink="/usuario" class="menu-item">
+        <mat-icon>dashboard</mat-icon>
+        Dashboard
+      </a>
 
-    <mat-icon>{{item.icon}}</mat-icon>
+      <a routerLink="/usuario/cadastro-doacao" class="menu-item">
+        <mat-icon>add_box</mat-icon>
+        Cadastro de Doação
+      </a>
 
-    <span class="menu-text">
-      {{item.label}}
-    </span>
+      <a routerLink="/usuario/solicitacao-doacao" class="menu-item">
+        <mat-icon>assignment</mat-icon>
+        Solicitação de Doação
+      </a>
 
-  </a>
+      <a routerLink="/usuario/doacoes" class="menu-item">
+        <mat-icon>list</mat-icon>
+        Listar Doações
+      </a>
 
-}
+      <a routerLink="/usuario/solicitacoes" class="menu-item">
+        <mat-icon>list_alt</mat-icon>
+        Listar Solicitações
+      </a>
 
-</div>
+    </ng-container>
+
+    <!-- TÉCNICO -->
+    <ng-container *ngIf="perfil === 'TECNICO'">
+
+      <a routerLink="/tecnico" class="menu-item">
+        <mat-icon>dashboard</mat-icon>
+        Dashboard
+      </a>
+
+      <a routerLink="/tecnico/doacoes" class="menu-item">
+        <mat-icon>inventory_2</mat-icon>
+        Doação
+      </a>
+
+      <a routerLink="/tecnico/historico" class="menu-item">
+        <mat-icon>folder_open</mat-icon>
+        Histórico
+      </a>
+
+      <div class="divisor"></div>
+
+    </ng-container>
+
+    <!-- ADMIN -->
+    <ng-container *ngIf="perfil === 'ADMIN'">
+
+      <a routerLink="/admin" class="menu-item">
+        <mat-icon>dashboard</mat-icon>
+        Dashboard
+      </a>
+
+      <a routerLink="/admin/usuarios" class="menu-item">
+          <mat-icon>group</mat-icon>
+          Usuários
+      </a>
+
+      <a routerLink="/admin/equipamentos" class="menu-item">
+        <mat-icon>search</mat-icon>
+        Listar Equipamento
+      </a>
+
+      <a routerLink="/admin/doacoes" class="menu-item">
+        <mat-icon>search</mat-icon>
+        Listar Doações
+      </a>
+
+      <a routerLink="/admin/solicitacoes" class="menu-item">
+        <mat-icon>search</mat-icon>
+        Listar Solicitações
+      </a>
+
+      <div class="divisor"></div>
+
+    </ng-container>
+
+  </nav>
+</aside>
