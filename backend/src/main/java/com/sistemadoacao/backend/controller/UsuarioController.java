@@ -17,11 +17,13 @@ import com.sistemadoacao.backend.dto.AdministradorDTO;
 import com.sistemadoacao.backend.dto.PessoaResponseDTO;
 import com.sistemadoacao.backend.dto.TecnicoDTO;
 import com.sistemadoacao.backend.dto.UsuarioRequestDTO;
+import com.sistemadoacao.backend.dto.UsuarioResponseDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.service.UsuarioService;
+
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -95,8 +97,8 @@ public class UsuarioController {
             """)))
     @ApiResponse(responseCode = "409", description = "Email já cadastrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioRequestDTO> cadastrarUsuario(@RequestBody UsuarioRequestDTO usuario) {
-        UsuarioRequestDTO novoUsuario;
+    public ResponseEntity<UsuarioResponseDTO> cadastrarUsuario(@RequestBody UsuarioRequestDTO usuario) {
+        UsuarioResponseDTO novoUsuario;
         try {
             log.info("iniciando cadastro" + usuario);
             novoUsuario = usuarioService.saveUsuario(usuario);
@@ -152,10 +154,10 @@ public class UsuarioController {
         boolean deleted = false;
         deleted = usuarioService.deleteUsuario(id);
         if (deleted) {
-            // 204 No Content
+            // 204 
             return ResponseEntity.noContent().build();
         } else {
-            // 404 Not Found
+            // 404 
             return ResponseEntity.notFound().build();
         }
     }
@@ -167,36 +169,8 @@ public class UsuarioController {
     @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<PessoaResponseDTO> atualizarUsuario(@PathVariable @NonNull Long id, @RequestBody UsuarioRequestDTO usuario) {
-        Usuario existente;
-        try {
-            existente = usuarioService.getUsuarioById(id);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (usuario.nome() != null) {
-            existente.setNome(usuario.nome());
-        }
-        Boolean emailJaExiste = usuarioService.getUsuarioByEmail(usuario.email());
-        if (usuario.email() != null && emailJaExiste && !existente.getEmail().equals(usuario.email())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }else{
-            existente.setEmail(usuario.email());
-        }
-        if (usuario.email() != null) {
-            existente.setEmail(usuario.email());
-        }
-
-        if (usuario.cpf() != null) {
-            existente.setCpf(usuario.cpf());
-        }
-
-        if (usuario.senha() != null) {
-            existente.setSenha(usuario.senha());
-        }
-
-        Usuario usuarioAtualizado = usuarioService.updateUsuario(id, existente);
+    public ResponseEntity<PessoaResponseDTO> atualizarUsuario(@PathVariable @NonNull Long id, @RequestBody Pessoa pessoa) { 
+        Pessoa usuarioAtualizado = usuarioService.updateUsuario(id, pessoa);
         return ResponseEntity.ok(new PessoaResponseDTO(usuarioAtualizado.getId(), usuarioAtualizado.getNome(), usuarioAtualizado.getCpf(), usuarioAtualizado.getEmail(), usuarioAtualizado.getClass().getSimpleName(), usuarioAtualizado.getDataCadastro().toString()));
 
     }
