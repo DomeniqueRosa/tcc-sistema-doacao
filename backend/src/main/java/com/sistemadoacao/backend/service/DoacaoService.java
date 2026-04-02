@@ -33,12 +33,12 @@ public class DoacaoService {
         this.utils = utils;
     }
 
-    public Doacao save(@NonNull Doacao novaDoacao) {
+    public Doacao save(@NonNull Doacao novaDoacao, String observacao) {
         
         // Historico
         HistoricoDoacao histDoacao = new HistoricoDoacao();
         histDoacao.setDataAlteracao(LocalDateTime.now());
-        histDoacao.setObservacao("Doação cadastrada em sistema.");
+        histDoacao.setObservacao(observacao);
         histDoacao.setExecutor(utils.getNomeUsuarioLogado());
         histDoacao.setStatus(novaDoacao.getStatus());
 
