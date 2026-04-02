@@ -13,6 +13,8 @@ import javax.management.RuntimeErrorException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.sistemadoacao.backend.exception.ImageInvalidException;
+
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -36,7 +38,7 @@ public class FileService {
         // Validar se é imagem
         BufferedImage bi = ImageIO.read(arquivo.getInputStream());
         if (bi == null) {
-            throw new IllegalArgumentException();
+            throw new ImageInvalidException("Arquivo não é uma imagem válida." + arquivo.getOriginalFilename());
         }
 
         if (arquivo.isEmpty()) {
