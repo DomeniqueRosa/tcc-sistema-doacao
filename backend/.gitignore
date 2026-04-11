@@ -27,3 +27,4 @@ Thumbs.db
 
 help.md
 
+backend/src/main/resources/application.properties
