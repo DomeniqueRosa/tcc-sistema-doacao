@@ -13,11 +13,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGenericException(Exception ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro inesperado.");
-    }
-
     @ExceptionHandler(EquipamentNullException.class)
     public ResponseEntity<String> handleEquipamentNullException(EquipamentNullException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
@@ -48,4 +43,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(ex.getMessage());
     }
 
+    @ExceptionHandler(ImageInvalidException.class)
+    public ResponseEntity<String> handleImageInvalidException(ImageInvalidException ex) {
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ImageNullException.class)
+    public ResponseEntity<String> handleImageNullException(ImageNullException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ImageErroLerException.class)
+    public ResponseEntity<String> handleImageErroLerException(ImageErroLerException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(MaxUploadSizeException.class)
+    public ResponseEntity<String> handleMaxUploadSizeException(MaxUploadSizeException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(AprovarErroException.class)
+    public ResponseEntity<String> handleAprovarErroException(AprovarErroException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(ReprovarErroException.class)
+    public ResponseEntity<String> handleReprovarErroException(ReprovarErroException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    }
+    
 }
