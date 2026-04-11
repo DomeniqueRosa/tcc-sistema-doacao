@@ -26,4 +26,12 @@ public class Utils {
 
     }
 
+    public String getEmailUsuarioLogado() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof Pessoa pessoa) {
+            return pessoa.getEmail(); 
+        }
+        return null; 
+    }
+
 }
