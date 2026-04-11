@@ -1,0 +1,20 @@
+<header class="topbar">
+  <div class="lado-esquerdo">
+    <button mat-icon-button (click)="abrirFecharMenu()" aria-label="Abrir ou fechar menu">
+      <mat-icon>menu</mat-icon>
+    </button>
+  </div>
+
+  <div class="titulo-sistema">
+    Conexão Solidária
+  </div>
+
+  <div class="lado-direito">
+    <div class="avatar">
+      {{ nomeUsuario.charAt(0) }}
+    </div>
+    <button class="button" (click)="logout()">Sair</button>
+  </div>
+
+
+</header>

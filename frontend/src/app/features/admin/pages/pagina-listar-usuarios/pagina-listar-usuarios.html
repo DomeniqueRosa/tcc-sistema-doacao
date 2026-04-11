@@ -1,0 +1,99 @@
+<div class="container">
+  <mat-card class="card">
+    <div class="header">
+      <div class="titulo-pesquisar-user">
+        <h2>Pesquisar Usuários</h2>
+        <p>Gerencie os usuários cadastrados no sistema</p>
+      </div>
+
+      <button
+        mat-raised-button
+        color="primary"
+        routerLink="/admin/usuarios/novo-tecnico">
+        Novo Aluno Técnico
+      </button>
+    </div>
+
+    <mat-card-content>
+      <mat-form-field appearance="outline" class="campo-busca">
+        <mat-label>Buscar por nome, e-mail, CPF ou perfil</mat-label>
+        <input
+          matInput
+          (keyup)="aplicarFiltro($event)"
+          placeholder="Digite para pesquisar" />
+      </mat-form-field>
+
+      <div class="tabela-container" *ngIf="!carregando; else loading">
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z2 full-width-table">
+
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let usuario">{{ usuario.id }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="nome">
+            <th mat-header-cell *matHeaderCellDef>Nome</th>
+            <td mat-cell *matCellDef="let usuario">{{ usuario.nome }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="cpf">
+            <th mat-header-cell *matHeaderCellDef>CPF</th>
+            <td mat-cell *matCellDef="let usuario">{{ usuario.cpf }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>E-mail</th>
+            <td mat-cell *matCellDef="let usuario">{{ usuario.email }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="perfil">
+            <th mat-header-cell *matHeaderCellDef>Perfil</th>
+            <td mat-cell *matCellDef="let usuario">{{ usuario.perfil || '-' }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="acoes">
+            <th mat-header-cell *matHeaderCellDef>Ações</th>
+            <td mat-cell *matCellDef="let usuario">
+              <div class="acoes">
+                <button
+                  mat-icon-button
+                  color="primary"
+                  [routerLink]="['/admin/usuarios/editar', usuario.id]"
+                  aria-label="Editar usuário">
+                  <mat-icon>edit</mat-icon>
+                </button>
+
+                <button
+                  mat-icon-button
+                  color="warn"
+                  (click)="excluirUsuario(usuario.id)"
+                  aria-label="Excluir usuário">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+          <tr class="mat-row" *matNoDataRow>
+            <td class="mat-cell sem-dados" colspan="6">
+              Nenhum usuário encontrado.
+            </td>
+          </tr>
+        </table>
+
+        <mat-paginator
+          [pageSize]="5"
+          [pageSizeOptions]="[5, 10, 20]"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+
+      <ng-template #loading>
+        <p>Carregando usuários...</p>
+      </ng-template>
+    </mat-card-content>
+  </mat-card>
+</div>
