@@ -30,6 +30,8 @@ public class OpenAIService {
     public AnaliseIAResponse analisarImagem(MultipartFile imagem) {
 
     try {
+
+        String contentType = imagem.getContentType();
         // Converter imagem para base64
         String base64 = Base64.getEncoder().encodeToString(imagem.getBytes());
 
@@ -43,7 +45,7 @@ public class OpenAIService {
                 "- APROVADO: funcionando normalmente\n" +
                 "- REPARO: possui defeitos, mas pode ser consertado\n" +
                 "- REPROVADO: não tem conserto\n\n" +
-                "Responda APENAS com JSON válido no formato:\n" +
+                "Responda APENAS com JSON válido no formato com no maximo 20 caracteres:\n" +
                 "{\n" +
                 "  \"status\": \"APROVADO | REPARO | REPROVADO\",\n" +
                 "  \"descricao\": \"Descreva o problema ou estado de forma resumida\",\n" +
@@ -53,7 +55,7 @@ public class OpenAIService {
 
         Map<String, Object> imageContent = new HashMap<>();
         imageContent.put("type", "input_image");
-        imageContent.put("image_url", "data:image/jpeg;base64," + base64);
+        imageContent.put("image_url", "data:" + contentType + ";base64," + base64);
 
         Map<String, Object> message = new HashMap<>();
         message.put("role", "user");
@@ -101,7 +103,9 @@ public class OpenAIService {
         return analise;
 
     } catch (Exception e) {
+        
         throw new RequestImageIaException("Erro ao processar análise da IA: " + e.getMessage());
+
     }
 }
 
