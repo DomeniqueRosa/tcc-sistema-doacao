@@ -5,8 +5,5 @@ public enum Equipamento {
     NOTEBOOK,
     MONITOR,
     TECLADO,
-    MOUSE,
-    ROTEADOR,
-    CAIXA_DE_SOM,
-    WEBCAM
+    MOUSE
 }

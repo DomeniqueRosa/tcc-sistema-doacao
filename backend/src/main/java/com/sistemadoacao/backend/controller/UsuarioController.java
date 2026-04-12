@@ -14,13 +14,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.sistemadoacao.backend.dto.AdministradorDTO;
+import com.sistemadoacao.backend.dto.PessoaResponseDTO;
 import com.sistemadoacao.backend.dto.TecnicoDTO;
-import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.dto.UsuarioRequestDTO;
+import com.sistemadoacao.backend.dto.UsuarioResponseDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
 import com.sistemadoacao.backend.model.Usuario;
 import com.sistemadoacao.backend.service.UsuarioService;
+
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +31,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.websocket.server.PathParam;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -93,8 +97,8 @@ public class UsuarioController {
             """)))
     @ApiResponse(responseCode = "409", description = "Email já cadastrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioDTO> cadastrarUsuario(@RequestBody UsuarioDTO usuario) {
-        UsuarioDTO novoUsuario;
+    public ResponseEntity<UsuarioResponseDTO> cadastrarUsuario(@RequestBody UsuarioRequestDTO usuario) {
+        UsuarioResponseDTO novoUsuario;
         try {
             log.info("iniciando cadastro" + usuario);
             novoUsuario = usuarioService.saveUsuario(usuario);
@@ -112,9 +116,13 @@ public class UsuarioController {
     @Operation(summary = "Listar todos os usuários")
     @ApiResponse(responseCode = "200", description = "Usuários encontrados com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    // TODO: Retornar uma PessoaResponseDTO
-    public ResponseEntity<List<Pessoa>> listarUsuarios() {
-        return ResponseEntity.ok(usuarioService.getAllUsuarios());
+    // INFO: Metodo alterado para Retornar uma PessoaResponseDTO (x)
+    public ResponseEntity<List<PessoaResponseDTO>> listarUsuarios() {
+        List<Pessoa> usuariosEntidade = usuarioService.getAllUsuarios();
+        List<PessoaResponseDTO> usuarios = usuariosEntidade.stream()
+                .map(p -> new PessoaResponseDTO(p.getId(), p.getNome(), p.getCpf(), p.getEmail(), p.getClass().getSimpleName(), p.getDataCadastro().toString()))
+                .toList();
+        return ResponseEntity.ok(usuarios);
     }
 
     @GetMapping("/{id}")
@@ -122,13 +130,13 @@ public class UsuarioController {
     @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<UsuarioDTO> listarUsuarioPorId(@PathParam(value = "") Long id) {
+    public ResponseEntity<UsuarioRequestDTO> listarUsuarioPorId(@PathParam(value = "") Long id) {
         if (id == null) {
             return ResponseEntity.badRequest().build();
         }
         try {
             Usuario usuarioEntidade = usuarioService.getUsuarioById(id);
-            UsuarioDTO usuario = new UsuarioDTO(usuarioEntidade);
+            UsuarioRequestDTO usuario = new UsuarioRequestDTO(usuarioEntidade);
             return ResponseEntity.ok(usuario);
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
@@ -141,17 +149,15 @@ public class UsuarioController {
     @ApiResponse(responseCode = "204", description = "Usuário deletado com sucesso")
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
-    public ResponseEntity<Void> deletarUsuario(@PathVariable Long id) {
+    // TODO: Verificar documentacao se esta correto retornar void ou se é melhor retornar um ResponseEntity com status 204
+    public ResponseEntity<Void> deletarUsuario(@PathVariable @NonNull Long id) {
         boolean deleted = false;
-        if (id == null) {
-            return ResponseEntity.badRequest().build();
-        }
         deleted = usuarioService.deleteUsuario(id);
         if (deleted) {
-            // 204 No Content
+            // 204 
             return ResponseEntity.noContent().build();
         } else {
-            // 404 Not Found
+            // 404 
             return ResponseEntity.notFound().build();
         }
     }
@@ -163,35 +169,9 @@ public class UsuarioController {
     @ApiResponse(responseCode = "400", description = "Requisição inválida", content = @Content)
     @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Usuario> atualizarUsuario(@PathVariable Long id, @RequestBody Usuario usuario) {
-
-        if (id == null) {
-            return ResponseEntity.badRequest().build();
-        }
-        Usuario existente;
-        try {
-            existente = usuarioService.getUsuarioById(id);
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-
-        if (usuario.getNome() != null) {
-            existente.setNome(usuario.getNome());
-        }
-        if (usuario.getEmail() != null) {
-            existente.setEmail(usuario.getEmail());
-        }
-
-        if (usuario.getCpf() != null) {
-            existente.setCpf(usuario.getCpf());
-        }
-
-        if (usuario.getSenha() != null) {
-            existente.setSenha(usuario.getSenha());
-        }
-
-        Usuario usuarioAtualizado = usuarioService.updateUsuario(id, existente);
-        return ResponseEntity.ok(usuarioAtualizado);
+    public ResponseEntity<PessoaResponseDTO> atualizarUsuario(@PathVariable @NonNull Long id, @RequestBody Pessoa pessoa) { 
+        Pessoa usuarioAtualizado = usuarioService.updateUsuario(id, pessoa);
+        return ResponseEntity.ok(new PessoaResponseDTO(usuarioAtualizado.getId(), usuarioAtualizado.getNome(), usuarioAtualizado.getCpf(), usuarioAtualizado.getEmail(), usuarioAtualizado.getClass().getSimpleName(), usuarioAtualizado.getDataCadastro().toString()));
 
     }
 

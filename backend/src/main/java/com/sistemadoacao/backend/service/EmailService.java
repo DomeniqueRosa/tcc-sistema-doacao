@@ -44,4 +44,17 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
             logger.error("Erro ao enviar email para " + email + ": " + e.getMessage());
         }
     }
+
+    public void enviarEmailAvaliacaoIA(String email, String nome, String resultado) {
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(email);
+            message.setSubject("Avaliação da IA para sua doação");
+            message.setText("Olá " + nome + ",\n\nA avaliação da IA para a sua doação foi concluída. O resultado é: " + resultado + ".\n\nObrigado por contribuir com o nosso sistema de doações.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
+            mailSender.send(message);
+            logger.info("Email de avaliação da IA enviado com sucesso para " + email);
+        } catch (MailException e) {
+            logger.error("Erro ao enviar email de avaliação da IA para " + email + ": " + e.getMessage());
+        }
+    }
 }

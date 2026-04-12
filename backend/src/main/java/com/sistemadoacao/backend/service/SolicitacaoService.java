@@ -18,6 +18,7 @@ import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
 import com.sistemadoacao.backend.repository.SolicitacaoRepository;
 
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -66,7 +67,7 @@ public class SolicitacaoService {
         return solicitacaoRepository.findAllByUsuarioId(id);
     }
 
-    public Solicitacao findById(Long id) throws Exception {
+    public Solicitacao findById(@NonNull Long id) throws Exception {
         return solicitacaoRepository.findById(id)
                 .orElseThrow(() -> new Exception("Solicitação não encontrada com ID: " + id));
     }
@@ -76,7 +77,7 @@ public class SolicitacaoService {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public void delete(Long id) {
+    public void delete(@NonNull Long id) {
 
         
         // historico
@@ -182,7 +183,7 @@ public class SolicitacaoService {
     }
 
     @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public Solicitacao selecionarDoacaoSolicitacao(Long solicitacaoId, Long doacaoId)
+    public Solicitacao selecionarDoacaoSolicitacao(@NonNull Long solicitacaoId, @NonNull Long doacaoId)
             throws Exception {
         Solicitacao solicitacao = findById(solicitacaoId);
         Doacao doacaoEscolhida = doacaoRepository.findById(doacaoId)

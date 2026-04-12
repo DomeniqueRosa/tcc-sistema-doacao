@@ -11,7 +11,8 @@ import org.springframework.stereotype.Service;
 
 import com.sistemadoacao.backend.dto.AdministradorDTO;
 import com.sistemadoacao.backend.dto.TecnicoDTO;
-import com.sistemadoacao.backend.dto.UsuarioDTO;
+import com.sistemadoacao.backend.dto.UsuarioRequestDTO;
+import com.sistemadoacao.backend.dto.UsuarioResponseDTO;
 import com.sistemadoacao.backend.model.Administrador;
 import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.model.Tecnico;
@@ -52,7 +53,7 @@ public class UsuarioService {
 
     // A anotação garante: salva tudo (Pessoa + Usuario), ou não salva nada.
     @Transactional
-    public UsuarioDTO saveUsuario(UsuarioDTO usuario) {
+    public UsuarioResponseDTO saveUsuario(UsuarioRequestDTO usuario) {
         Usuario novo = new Usuario();
 
         if (pessoaRepository.existsByEmail(usuario.email())) {
@@ -74,7 +75,7 @@ public class UsuarioService {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         log.info("Salvando novo usuário: {}", usuario.email());
-        return new UsuarioDTO(novo);
+        return new UsuarioResponseDTO(novo.getId(), novo.getNome(), novo.getCpf(), novo.getEmail(), novo.getClass().getSimpleName(), novo.getDataCadastro().toString());
     }
 
     public List<Pessoa> getAllUsuarios() {
@@ -90,32 +91,44 @@ public class UsuarioService {
 
    
     @Transactional
-    public Usuario updateUsuario(@NonNull Long id, Usuario usuarioAtualizado) {
-        
-        Usuario usuarioExistente = getUsuarioById(id);
+    public Pessoa updateUsuario(@NonNull Long id, Pessoa usuarioAtualizado) {
 
-        if (!usuarioExistente.getEmail().equals(usuarioAtualizado.getEmail()) && 
-            usuarioRepository.existsByEmail(usuarioAtualizado.getEmail())) {
-            throw new RuntimeException("Este e-mail já está em uso por outro usuário.");
+        Pessoa pessoa = pessoaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+
+        if(pessoa.getClass().getSimpleName().equals("Administrador") || pessoa.getClass().getSimpleName().equals("Usuario")) {
+            pessoa.setNome(usuarioAtualizado.getNome());
+            pessoa.setCpf(usuarioAtualizado.getCpf());
+            pessoa.setEmail(usuarioAtualizado.getEmail());
+            return pessoaRepository.save(pessoa);
+        } else {
+            Tecnico tecnicoExistente = tecnicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Técnico não encontrado com ID: " + id));
+            tecnicoExistente.setNome(usuarioAtualizado.getNome());
+            tecnicoExistente.setCpf(usuarioAtualizado.getCpf());
+            tecnicoExistente.setEmail(usuarioAtualizado.getEmail());
+            tecnicoExistente.setCurso(((Tecnico) usuarioAtualizado).getCurso());
+            tecnicoExistente.setGrr(((Tecnico) usuarioAtualizado).getGrr());
+            return tecnicoRepository.save(tecnicoExistente);
         }
-
-
-        usuarioExistente.setNome(usuarioAtualizado.getNome());
-        usuarioExistente.setEmail(usuarioAtualizado.getEmail());
-        usuarioExistente.setCpf(usuarioAtualizado.getCpf());
-
-        Usuario usuario = usuarioRepository.save(usuarioExistente);
-
-        return usuario;
+        
     }
 
     public boolean deleteUsuario(@NonNull Long id) {
-        if(usuarioRepository.existsById(id) == false) {
-            log.warn("Tentativa de deletar usuário não existente: ID {}", id);
-            return false;
-        } else {
-            usuarioRepository.deleteById(id);
-            log.info("Usuário deletado com sucesso: ID {}", id);
+        Pessoa pessoa = pessoaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuário não encontrado com ID: " + id));
+        
+        if(pessoa.getClass().getSimpleName().equals("Administrador")) {
+            admRepository.deleteById(id);
+            log.info("Administrador deletado com sucesso: ID {}", id);  
+            return true;  
+        }else if(pessoa.getClass().getSimpleName().equals("Tecnico")) {
+            tecnicoRepository.deleteById(id);
+            log.info("Técnico deletado com sucesso: ID {}", id);
+            return true;
+        }else {
+             usuarioRepository.deleteById(id);
+             log.info("Usuário deletado com sucesso: ID {}", id);
             return true;
         }
     }
@@ -136,7 +149,6 @@ public class UsuarioService {
     }
 
     public Tecnico saveTecnico(TecnicoDTO tecnico) {
-        // TODO: implementar alterar senha
         Tecnico novo = new Tecnico();
 
         if (pessoaRepository.existsByEmail(tecnico.usuario().email())) {
@@ -161,7 +173,7 @@ public class UsuarioService {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         log.info("Salvando novo usuário: {}", tecnico.usuario().email());
-        // TODO: Retornar um TecnicoDTO
+        
         return novo;
     }
 
@@ -202,9 +214,11 @@ public class UsuarioService {
             log.error("Erro ao enviar e-mail de cadastro: {}", e.getMessage());
         }
         log.info("Salvando novo usuário: {}", novo.getEmail());
-        // TODO: Retornar um AdmResponseDTO ou pessoaDto
         return novo;
         
     }
 
+    public boolean getUsuarioByEmail (String email) {
+        return pessoaRepository.existsByEmail(email);
+    }
 }
