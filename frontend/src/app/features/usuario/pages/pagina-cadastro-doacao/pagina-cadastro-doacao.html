@@ -1,0 +1,118 @@
+<div class="pagina-doacao">
+  <div class="topo-pagina">
+    <div>
+      <h1>Cadastro de Doação</h1>
+      <p>Preencha os dados do equipamento que deseja doar.</p>
+    </div>
+  </div>
+
+  <mat-card class="card-doacao">
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="confirmar()" class="form-doacao">
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Informações do item</h2>
+          </div>
+
+          <div class="linha linha-dupla">
+            <mat-form-field appearance="outline">
+              <mat-label>Tipo do item</mat-label>
+              <mat-select formControlName="tipoItem">
+                <mat-option *ngFor="let tipo of tiposItens" [value]="tipo">
+                  {{ tipo }}
+                </mat-option>
+              </mat-select>
+              <mat-error *ngIf="tipoItem?.hasError('required')">
+                Selecione o tipo do item.
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Quantidade</mat-label>
+              <input matInput type="number" formControlName="quantidade" min="1" />
+              <mat-error *ngIf="quantidade?.hasError('required')">
+                Informe a quantidade.
+              </mat-error>
+              <mat-error *ngIf="quantidade?.hasError('min')">
+                A quantidade deve ser no mínimo 1.
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="linha">
+            <mat-form-field appearance="outline" class="campo-descricao">
+              <mat-label>Descrição</mat-label>
+              <textarea
+                matInput
+                rows="4"
+                formControlName="descricao"
+                placeholder="Descreva o item, estado geral, defeitos ou observações"></textarea>
+              <mat-error *ngIf="descricao?.hasError('required')">
+                A descrição é obrigatória.
+              </mat-error>
+              <mat-error *ngIf="descricao?.hasError('minlength')">
+                Escreva uma descrição um pouco mais detalhada.
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <mat-icon>image</mat-icon>
+            <h2>Imagem do item</h2>
+          </div>
+
+          <div class="upload-area">
+            <label class="botao-upload">
+              <input type="file" accept="image/*" (change)="selecionarImagem($event)" hidden />
+              <mat-icon>upload</mat-icon>
+              Selecionar imagem
+            </label>
+
+            <span class="nome-arquivo">{{ nomeArquivo }}</span>
+          </div>
+
+          <div class="preview-container" *ngIf="imagemPreview">
+            <img [src]="imagemPreview" alt="Preview da imagem" class="preview-imagem" />
+
+            <button
+              type="button"
+              mat-stroked-button
+              color="warn"
+              (click)="removerImagem()">
+              <mat-icon>delete</mat-icon>
+              Remover imagem
+            </button>
+          </div>
+        </section>
+
+        <section class="bloco-formulario">
+          <div class="titulo-bloco">
+            <h2>Estado de conservação</h2>
+          </div>
+
+          <mat-radio-group formControlName="estadoConservacao" color="primary" class="grupo-radio">
+            <mat-radio-button value="NOVO">Novo</mat-radio-button>
+            <mat-radio-button value="USADO">Usado</mat-radio-button>
+            <mat-radio-button value="PRECISA_REPARO">Precisa de reparo</mat-radio-button>
+          </mat-radio-group>
+        </section>
+
+        <section class="acoes-formulario">
+          <button type="submit" mat-raised-button color="primary" class="botao-confirmar">
+            <mat-icon>check</mat-icon>
+            Confirmar doação
+          </button>
+
+          <button type="button" mat-stroked-button class="botao-cancelar" (click)="cancelar()">
+            <mat-icon>close</mat-icon>
+            Cancelar
+          </button>
+        </section>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

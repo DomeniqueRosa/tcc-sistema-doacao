@@ -18,14 +18,14 @@
           </mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
+      <mat-form-field appearance="outline">
           <mat-label>CPF</mat-label>
           <input matInput formControlName="cpf" type="text" />
           <mat-error *ngIf="campoTemErro('cpf', 'required')">
             O CPF é obrigatório
           </mat-error>
-          <mat-error *ngIf="campoTemErro('cpf', 'minlength') || campoTemErro('cpf', 'maxlength')">
-            O CPF deve ter 11 dígitos
+          <mat-error *ngIf="campoTemErro('cpf', 'pattern')">
+            Informe um CPF válido (somente números)
           </mat-error>
         </mat-form-field>
 

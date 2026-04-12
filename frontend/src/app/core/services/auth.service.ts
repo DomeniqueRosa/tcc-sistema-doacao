@@ -8,7 +8,6 @@ import { LoginRequest, LoginResponse } from '../models/auth.model';
 })
 export class AuthService {
   private http = inject(HttpClient);
-
   private apiUrl = 'http://localhost:8080/login';
 
   login(dados: LoginRequest): Observable<LoginResponse> {
@@ -16,7 +15,7 @@ export class AuthService {
       tap((resposta) => {
         localStorage.setItem('token', resposta.token);
         localStorage.setItem('email', resposta.email);
-        localStorage.setItem('perfil', resposta.perfil);
+        localStorage.setItem('perfil', this.normalizarPerfil(resposta.perfil));
       })
     );
   }
@@ -28,14 +27,37 @@ export class AuthService {
   }
 
   getToken(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem('token');
   }
 
   getPerfil(): string | null {
+    if (typeof window === 'undefined') return null;
     return localStorage.getItem('perfil');
   }
 
   isAutenticado(): boolean {
     return !!this.getToken();
+  }
+
+  isAdmin(): boolean {
+    return this.getPerfil() === 'ADMINISTRADOR';
+  }
+
+  isTecnico(): boolean {
+    return this.getPerfil() === 'TECNICO';
+  }
+
+  isUsuario(): boolean {
+    return this.getPerfil() === 'USUARIO';
+  }
+
+  private normalizarPerfil(perfil: string | null | undefined): string {
+    if (!perfil) return '';
+
+    return perfil
+      .toUpperCase()
+      .replace('ROLE_', '')
+      .trim();
   }
 }

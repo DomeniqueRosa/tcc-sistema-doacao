@@ -12,12 +12,19 @@ import { PaginaCadastrarUsuario } from './features/usuario/pages/pagina-cadastra
 import { PaginaDashboardAdmin } from './features/admin/pages/pagina-dashboard-admin/pagina-dashboard-admin';
 import { PaginaListarUsuarios } from './features/admin/pages/pagina-listar-usuarios/pagina-listar-usuarios';
 import { PaginaCadastrarTecnico } from './features/admin/pages/pagina-cadastrar-tecnico/pagina-cadastrar-tecnico';
+import { PaginaEditarUsuario } from './features/admin/pages/pagina-editar-usuario/pagina-editar-usuario';
 
 // Técnico
 import { PaginaDashboardTecnico } from './features/tecnico/pages/pagina-dashboard-tecnico/pagina-dashboard-tecnico';
 
 // Usuário
 import { PaginaDashboardUsuario } from './features/usuario/pages/pagina-dashboard-usuario/pagina-dashboard-usuario';
+import { PaginaCadastroDoacao } from './features/usuario/pages/pagina-cadastro-doacao/pagina-cadastro-doacao';
+
+
+// Guards
+import { authGuard } from './core/guards/auth.guard';
+import { perfilGuard } from './core/guards/perfil.guard';
 
 export const routes: Routes = [
   {
@@ -31,19 +38,60 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutPrincipal,
+    canActivate: [authGuard],
     children: [
-      { path: 'admin', component: PaginaDashboardAdmin },
-      { path: 'admin/usuarios', component: PaginaListarUsuarios },
-      { path: 'admin/usuarios/novo-tecnico', component: PaginaCadastrarTecnico },
+      {
+        path: 'admin',
+        component: PaginaDashboardAdmin,
+        canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/usuarios',
+        component: PaginaListarUsuarios,
+        canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/usuarios/novo-tecnico',
+        component: PaginaCadastrarTecnico,
+        canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'admin/usuarios/editar/:id',
+        component: PaginaEditarUsuario,
+        canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+      {
+        path: 'tecnico',
+        component: PaginaDashboardTecnico,
+        canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['TECNICO'] }
+      },
+      {
+        path: 'usuario',
+        component: PaginaDashboardUsuario,
+        canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['USUARIO'] }
+      },
+       {
+        path: 'usuario/cadastro-doacao',
+        component: PaginaCadastroDoacao,
+        canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['USUARIO']}
 
-      { path: 'tecnico', component: PaginaDashboardTecnico },
-
-      { path: 'usuario', component: PaginaDashboardUsuario }
+      }
     ]
   },
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
+  },
+  {
+    path: '**',
+    redirectTo: 'login'
   }
 ];

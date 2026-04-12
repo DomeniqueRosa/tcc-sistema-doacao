@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -28,12 +29,13 @@ export class PaginaCadastrarTecnico {
   private fb = inject(FormBuilder);
   private usuarioService = inject(UsuarioService);
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   carregando = false;
 
   tecnicoForm = this.fb.group({
     nome: ['', [Validators.required, Validators.minLength(3)]],
-    cpf: ['', [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
+    cpf: ['', [Validators.required, Validators.pattern(/^\d{11}$/)]],
     email: ['', [Validators.required, Validators.email]],
     senha: ['', [Validators.required, Validators.minLength(6)]],
     grr: ['', [Validators.required]],
@@ -49,12 +51,12 @@ export class PaginaCadastrarTecnico {
     this.carregando = true;
 
     const dados: TecnicoCadastroRequest = {
-      nome: this.tecnicoForm.value.nome!,
-      cpf: this.tecnicoForm.value.cpf!,
-      email: this.tecnicoForm.value.email!,
-      senha: this.tecnicoForm.value.senha!,
-      grr: this.tecnicoForm.value.grr!,
-      curso: this.tecnicoForm.value.curso!
+      nome: this.tecnicoForm.value.nome ?? '',
+      cpf: this.tecnicoForm.value.cpf ?? '',
+      email: this.tecnicoForm.value.email ?? '',
+      senha: this.tecnicoForm.value.senha ?? '',
+      grr: this.tecnicoForm.value.grr ?? '',
+      curso: this.tecnicoForm.value.curso ?? ''
     };
 
     this.usuarioService.cadastrarTecnico(dados).subscribe({
@@ -62,15 +64,24 @@ export class PaginaCadastrarTecnico {
         this.snackBar.open('Aluno técnico cadastrado com sucesso!', 'Fechar', {
           duration: 3000
         });
+
         this.tecnicoForm.reset();
         this.carregando = false;
+
+        this.router.navigate(['/admin/usuarios']);
       },
       error: (erro) => {
         console.error('Erro ao cadastrar técnico:', erro);
 
-        this.snackBar.open('Erro ao cadastrar aluno técnico.', 'Fechar', {
-          duration: 3000
-        });
+        if (erro.status === 403) {
+          this.snackBar.open('Você não tem permissão para cadastrar aluno técnico.', 'Fechar', {
+            duration: 4000
+          });
+        } else {
+          this.snackBar.open('Erro ao cadastrar aluno técnico.', 'Fechar', {
+            duration: 3000
+          });
+        }
 
         this.carregando = false;
       }

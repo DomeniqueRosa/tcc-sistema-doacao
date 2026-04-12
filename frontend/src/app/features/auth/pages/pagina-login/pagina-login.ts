@@ -52,14 +52,14 @@ export class PaginaLogin {
     };
 
     this.authService.login(dados).subscribe({
-      next: (resposta) => {
+      next: () => {
         this.snackBar.open('Login realizado com sucesso!', 'Fechar', {
           duration: 3000
         });
 
-        const perfil = resposta.perfil?.toUpperCase();
+        const perfil = this.authService.getPerfil();
 
-        if (perfil === 'ADMIN' || perfil === 'ADMINISTRADOR') {
+        if (perfil === 'ADMINISTRADOR') {
           this.router.navigate(['/admin']);
         } else if (perfil === 'TECNICO') {
           this.router.navigate(['/tecnico']);
