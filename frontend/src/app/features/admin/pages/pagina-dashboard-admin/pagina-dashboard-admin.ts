@@ -1,19 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ViewChild } from '@angular/core';
-import {
-  ApexAxisChartSeries,
-  ApexChart,
-  ApexDataLabels,
-  ApexLegend,
-  ApexNonAxisChartSeries,
-  ApexPlotOptions,
-  ApexResponsive,
-  ApexStroke,
-  ApexTitleSubtitle,
-  ApexXAxis,
-  ApexYAxis,
-  ChartComponent,
-  NgApexchartsModule
+import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlotOptions, ApexResponsive, ApexStroke,
+  ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule
 } from 'ng-apexcharts';
 import { MatCardModule } from '@angular/material/card';
 
@@ -49,10 +37,10 @@ export class PaginaDashboardAdmin {
   @ViewChild('donutChart') donutChart!: ChartComponent;
   @ViewChild('barChart') barChart!: ChartComponent;
 
-  // TODO: buscar nome do admin autenticado via AuthService / token
+  // buscar nome do admin autenticado via AuthService / token
   nomeUsuario = 'Admin';
 
-  // TODO: substituir por dados vindos da API
+  // substituir por dados vindos da API
   totalDoacoes = 0;
   totalAprovadas = 0;
   totalReprovadas = 0;
@@ -129,7 +117,7 @@ export class PaginaDashboardAdmin {
   };
 
   constructor() {
-    // TODO: chamar API de dashboard do admin
+    // chamar API de dashboard do admin
     // Exemplo futuro:
     // this.dashboardService.buscarResumoAdmin().subscribe(...)
     // this.dashboardService.buscarGraficoEquipamentos().subscribe(...)

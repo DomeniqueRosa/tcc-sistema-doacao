@@ -1,0 +1,41 @@
+.dialog-sucesso {
+  position: relative;
+  text-align: center;
+  padding: 24px 12px 12px;
+}
+
+.botao-fechar {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.icone-sucesso {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 16px;
+  border-radius: 50%;
+  background: #f5e7b2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icone-sucesso mat-icon {
+  font-size: 34px;
+  width: 34px;
+  height: 34px;
+  color: #8a5b00;
+}
+
+.dialog-sucesso h2 {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  color: #2f2347;
+}
+
+.dialog-sucesso p {
+  margin: 0 0 24px;
+  color: #6f6487;
+  line-height: 1.5;
+}
