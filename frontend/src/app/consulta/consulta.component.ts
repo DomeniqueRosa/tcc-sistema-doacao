@@ -8,7 +8,7 @@ import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { FlexLayoutModule } from '@angular/flex-layout';
-import { UsuarioService } from '../services/usuario.service';
+import { UsuarioService } from '../core/services/usuario.service';
 
 @Component({
   selector: 'app-consulta',
@@ -35,7 +35,7 @@ export class ConsultaComponent {
   constructor(private usuarioService: UsuarioService) { }
 
   ngOnInit() {
-    this.dataSource = this.usuarioService.listarTodos();
+    this.dataSource = this.usuarioService.listarUsuarios();
   }
 
   filtro: string = '';
@@ -57,11 +57,11 @@ export class ConsultaComponent {
 
   excluir(element: any) {
     console.log('Excluir:', element);
-    this.usuarioService.excluir(element.id).subscribe({
+    this.usuarioService.deletarUsuario(element.id).subscribe({
       next: () => {
         console.log('Usuário excluído com sucesso!');
         // Atualizar a lista após exclusão
-        this.dataSource = this.usuarioService.listarTodos();
+        this.dataSource = this.usuarioService.listarUsuarios();
       },
       error: (err) => {
         console.error('Erro ao excluir usuário:', err);
