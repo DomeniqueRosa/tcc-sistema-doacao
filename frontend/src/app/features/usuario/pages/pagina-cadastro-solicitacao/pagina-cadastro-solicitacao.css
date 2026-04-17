@@ -1,0 +1,139 @@
+.pagina-solicitacao {
+  padding: 32px;
+  background: linear-gradient(180deg, #f8f6fc 0%, #f4f1fa 100%);
+  min-height: 100vh;
+}
+
+.botao-voltar {
+  max-width: 900px;
+  margin: 0 auto 16px auto;
+  display: flex;
+  align-items:flex-start;
+  gap: 6px;
+  cursor: pointer;
+  color: #7f7f7f;
+  font-weight: 500;
+  transition: 0.2s ease;
+  margin-left: 8px;
+}
+
+.botao-voltar:hover {
+  color: #2e2e2e;
+}
+
+.botao-voltar mat-icon {
+  font-size: 25px;
+  width: 25px;
+  height: 25px;
+}
+
+.topo-pagina {
+  max-width: 900px;
+  margin: 0 auto 24px auto;
+}
+
+.topo-pagina h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 500;
+  color: #2f2347;
+}
+
+.topo-pagina p {
+  margin: 8px 0 0;
+  color: #6f6487;
+  font-size: 1rem;
+}
+
+.card-solicitacao {
+  max-width: 900px;
+  margin: 0 auto;
+  border-radius: 16px;
+  border: 1px solid #ece3f8;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+}
+
+.form-solicitacao {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.bloco-formulario {
+  background: #faf8fd;
+  border: 1px solid #eee7f8;
+  border-radius: 12px;
+  padding: 24px;
+}
+
+.titulo-bloco {
+  margin-bottom: 20px;
+}
+
+.titulo-bloco h2 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #34264f;
+  font-weight: 500;
+}
+
+.linha {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+.campo-motivo {
+  width: 100%;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mensagem-erro {
+  margin-top: -6px;
+  margin-left: 4px;
+  font-size: 0.85rem;
+  color: #b3261e;
+}
+
+.acoes-formulario {
+  display: flex;
+  justify-content: flex-end; 
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.botao-confirmar {
+  min-width: 160px;
+  height: 46px;
+  border-radius: 10px;
+}
+
+.botao-cancelar {
+  min-width: 130px;
+  height: 46px;
+  border-radius: 10px;
+}
+
+@media (max-width: 768px) {
+  .pagina-solicitacao {
+    padding: 20px;
+  }
+
+  .acoes-formulario {
+    flex-direction: column;
+  }
+
+  .botao-confirmar,
+  .botao-cancelar {
+    width: 100%;
+  }
+}
