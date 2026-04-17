@@ -10,6 +10,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatSelectModule } from '@angular/material/select';
 import { DialogSucessoDoacao } from './dialog-sucesso-doacao/dialog-sucesso-doacao';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+import { Doacao } from '../../../../core/models/doacao.mode';
 
 @Component({
   selector: 'app-pagina-cadastro-doacao',
@@ -32,6 +34,7 @@ import { DialogSucessoDoacao } from './dialog-sucesso-doacao/dialog-sucesso-doac
 export class PaginaCadastroDoacao {
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
+  private doacaoService = inject(DoacaoService);
 
   imagemPreview: string | null = null;
   nomeArquivo = 'Nenhum arquivo selecionado';
@@ -45,13 +48,11 @@ export class PaginaCadastroDoacao {
   });
 
   tiposItens: string[] = [
-    'Notebook',
-    'SSD',
-    'Memória RAM',
-    'Tela',
-    'Bateria',
-    'Teclado',
-    'Outro'
+    'COMPUTADOR',
+    'NOTEBOOK',
+    'MONITOR',
+    'TECLADO',
+    'MOUSE'
   ];
 
   selecionarImagem(event: Event): void {
@@ -87,11 +88,32 @@ export class PaginaCadastroDoacao {
     const payload = this.form.value;
     console.log('Dados da doação:', payload);
 
-    this.dialog.open(DialogSucessoDoacao, {
-      width: '420px',
-      disableClose: true
+    const dadosDoacao: Doacao = {
+      equipamento: this.form.value.tipoItem!,
+      quantidade: this.form.value.quantidade!,
+      descricao: this.form.value.descricao!,
+      conservacao: this.form.value.estadoConservacao!,
+      imagem: this.form.value.imagem!
+    };
+
+    this.doacaoService.cadastrarDoacao(dadosDoacao).subscribe({
+      next: (doacao) => {
+        console.log('Doação cadastrada com sucesso:', doacao);
+        this.dialog.open(DialogSucessoDoacao, {
+          width: '420px',
+          disableClose: true
+        });
+        this.resetarFormulario();
+      },
+      error: (error) => {
+        console.error('Erro ao cadastrar doação:', error);
+        // adicionar dialogo de erro aqui
+      }
     });
 
+  }
+
+  private resetarFormulario(): void {
     this.form.reset({
       tipoItem: '',
       quantidade: 1,
@@ -99,23 +121,14 @@ export class PaginaCadastroDoacao {
       estadoConservacao: 'USADO',
       imagem: null
     });
-
     this.imagemPreview = null;
     this.nomeArquivo = 'Nenhum arquivo selecionado';
   }
 
   cancelar(): void {
-    this.form.reset({
-      tipoItem: '',
-      quantidade: 1,
-      descricao: '',
-      estadoConservacao: 'USADO',
-      imagem: null
-    });
-
-    this.imagemPreview = null;
-    this.nomeArquivo = 'Nenhum arquivo selecionado';
+    this.resetarFormulario();
   }
+
 
   get tipoItem() {
     return this.form.get('tipoItem');
@@ -132,4 +145,6 @@ export class PaginaCadastroDoacao {
   get estadoConservacao() {
     return this.form.get('estadoConservacao');
   }
+
+
 }
