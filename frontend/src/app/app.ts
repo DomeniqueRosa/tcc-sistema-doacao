@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
   templateUrl: './app.html',
   styleUrls: ['./app.css']
 })
-export class AppComponent {
 
 export class AppComponent {
 

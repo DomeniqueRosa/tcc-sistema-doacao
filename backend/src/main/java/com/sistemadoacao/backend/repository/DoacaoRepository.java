@@ -22,10 +22,12 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
 
         long countByStatus(Status status);
 
-        @Query("SELECT MONTH(d.dataEntrega) as mes, COUNT(d.id) as total " +
-                        "FROM Doacao d " +
-                        "WHERE d.status = 'REALIZADA' " +
-                        "GROUP BY MONTH(d.dataEntrega)")
+        @Query(value ="SELECT MONTH(d.data_alteracao), COUNT(d.id) " +
+                        "FROM historico_status d " +
+                        "WHERE d.tipo_entidade = 'doacao' " +
+                        "AND d.status = 'DOADO' " +
+                        "GROUP BY MONTH(d.data_alteracao)",
+                nativeQuery = true)
         List<Object[]> findDoacoesMensais();
 
         @Query("SELECT d.equipamento, COUNT(d.id) " +

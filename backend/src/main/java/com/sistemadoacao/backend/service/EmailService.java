@@ -48,7 +48,12 @@ private static final Logger logger = LoggerFactory.getLogger(EmailService.class)
     public void enviarEmailAvaliacaoIA(String email, String nome, String resultado) {
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(email);
+            if(email != null && !email.isBlank()) {
+                message.setTo(email);
+            }else {
+                logger.warn("Email do destinatário está vazio ou nulo. Não será possível enviar o email de avaliação da IA., destinatário: " + nome);
+                return;
+            }
             message.setSubject("Avaliação da IA para sua doação");
             message.setText("Olá " + nome + ",\n\nA avaliação da IA para a sua doação foi concluída. O resultado é: " + resultado + ".\n\nObrigado por contribuir com o nosso sistema de doações.\n\nAtenciosamente,\nEquipe do Sistema de Doações");
             mailSender.send(message);
