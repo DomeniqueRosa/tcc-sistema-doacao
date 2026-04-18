@@ -2,6 +2,8 @@ import { HttpClient } from "@angular/common/http";
 import { Doacao } from "../models/doacao.mode";
 import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
+import { Dashboard } from "../models/dashboard.model";
+
 
 @Injectable({
   providedIn: 'root'
@@ -20,4 +22,8 @@ export class DoacaoService {
         formData.append('imagem', dados.imagem); 
     return this.http.post<FormData>(this.apiUrl, formData);
     }
+
+    obterDadosDashboard(): Observable<Dashboard> {
+      return this.http.get<Dashboard>(`${this.apiUrl}/dashboard`);
+  }
 }
