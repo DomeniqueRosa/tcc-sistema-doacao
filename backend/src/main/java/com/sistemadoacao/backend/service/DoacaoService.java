@@ -306,9 +306,10 @@ public class DoacaoService {
                 graficoEquipamento);
     }
 
-    public DoacaoResponseDTO cadastrarDoacao(DoacaoRequestDTO doacaoRequest) throws RequestImageIaException {
+    public DoacaoResponseDTO cadastrarDoacao(DoacaoRequestDTO doacaoRequest, Long id) throws RequestImageIaException {
         ImagemDoacao novaImagem = null;
         String nomeArquivo = null;
+        log.info("ID USUARIO: ", id);
         try {
             log.debug("Dados recebidos da requisicao: {}", doacaoRequest.imagem().getOriginalFilename());
             nomeArquivo = fileService.salvarArquivo(doacaoRequest.imagem());
@@ -317,6 +318,7 @@ public class DoacaoService {
             log.debug("Arquivo salvo com nome {}", nomeArquivo);
             // Doacao e associar a Imagem
             Doacao novaDoacao = new Doacao();
+            novaDoacao.setDoadorId(id);
             novaDoacao.setEquipamento(doacaoRequest.equipamento());
             novaDoacao.setQuantidade(doacaoRequest.quantidade());
             novaDoacao.setDescricao(doacaoRequest.descricao());
@@ -347,10 +349,13 @@ public class DoacaoService {
             }
 
             return new DoacaoResponseDTO(
+                    salva.getId(),
                     salva.getEquipamento(),
                     salva.getQuantidade(),
                     salva.getDescricao(),
-                    salva.getStatus());
+                    salva.getStatus(),
+                    salva.getStatusConservacao(),
+                    salva.getDataCadastro());
         }
         catch (RequestImageIaException e4) {
             log.error("Erro ao analisar imagem da doação com IA: {}", e4.getMessage());
@@ -359,6 +364,12 @@ public class DoacaoService {
             log.error("Erro ao cadastrar doação", e3);
             throw new ErroCadastoException("Erro ao cadastrar doação", e3);
         } 
+    }
+
+    public List<DoacaoResponseDTO> listarDoacoesPorUsuario(Long id) {
+        if(id == null)
+            throw new IdNullException("ID não pode ser nulo");
+        return repository.findByDoadorId(id).stream().map(DoacaoResponseDTO::new).toList();
     }
 }
 

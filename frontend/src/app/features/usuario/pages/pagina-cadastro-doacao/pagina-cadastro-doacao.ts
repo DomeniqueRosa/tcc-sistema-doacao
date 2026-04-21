@@ -23,6 +23,8 @@ import { Doacao } from '../../../../core/models/doacao.mode';
   styleUrl: './pagina-cadastro-doacao.css'
 })
 export class PaginaCadastroDoacao {
+
+  private router = inject(Router);
   private fb = inject(FormBuilder);
   private dialog = inject(MatDialog);
   private doacaoService = inject(DoacaoService);
@@ -74,7 +76,7 @@ export class PaginaCadastroDoacao {
     this.form.patchValue({ imagem: null });
   }
 
-  confirmar(formDirective: FormGroupDirective): void {
+  confirmar(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -141,5 +143,6 @@ export class PaginaCadastroDoacao {
     return this.form.get('estadoConservacao');
   }
 
+  
 
 }

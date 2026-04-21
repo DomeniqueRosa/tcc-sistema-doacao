@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,7 +20,7 @@ import org.springframework.http.MediaType;
 
 import com.sistemadoacao.backend.model.Doacao;
 import com.sistemadoacao.backend.model.Equipamento;
-
+import com.sistemadoacao.backend.model.Pessoa;
 import com.sistemadoacao.backend.service.DoacaoService;
 import com.sistemadoacao.backend.dto.DashboardDTO;
 import com.sistemadoacao.backend.dto.DoacaoRequestDTO;
@@ -31,6 +32,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
+
+
 
 @Slf4j
 @RestController
@@ -62,6 +65,14 @@ public class DoacaoController {
                 .toList());
     }
 
+    @GetMapping("usuario")
+    @Operation(summary = "Listar todas as doacoes do usuario")
+    public ResponseEntity<List<DoacaoResponseDTO>> listarDoacoesPorUsuario(@AuthenticationPrincipal Pessoa user){
+        return ResponseEntity.ok(doacaoService.listarDoacoesPorUsuario(user.getId()));
+                
+    }
+    
+
     @GetMapping("tipo/{equipamento}")
     @Operation(summary = "Listar todas as doações que são do mesmo tipo de equipamento", description = "Retorna uma lista de todas as doações cadastradas no sistema com o tipo do equipamento.")
     @ApiResponse(responseCode = "200", description = "Doacoes encontrados com sucesso")
@@ -87,8 +98,8 @@ public class DoacaoController {
     @ApiResponse(responseCode = "404", description = "Arquivo não encontrado")
     @ApiResponse(responseCode = "415", description = "Formato de arquivo inválido")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<DoacaoResponseDTO> cadastrarDoacao(@ModelAttribute DoacaoRequestDTO doacaoRequest) {
-        DoacaoResponseDTO doacaoResponse = doacaoService.cadastrarDoacao(doacaoRequest);
+    public ResponseEntity<DoacaoResponseDTO> cadastrarDoacao(@ModelAttribute DoacaoRequestDTO doacaoRequest, @AuthenticationPrincipal Pessoa user){
+        DoacaoResponseDTO doacaoResponse = doacaoService.cadastrarDoacao(doacaoRequest, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(doacaoResponse);
     }
 
@@ -116,7 +127,7 @@ public class DoacaoController {
 
             Doacao doacaoAtualizada = doacaoService.updateDoacao(id, doacaoRequest);
         
-            return ResponseEntity.ok(new DoacaoResponseDTO(doacaoAtualizada.getEquipamento(), doacaoAtualizada.getQuantidade(), doacaoAtualizada.getDescricao(), doacaoAtualizada.getStatus()));
+            return ResponseEntity.ok(new DoacaoResponseDTO(doacaoAtualizada.getId(), doacaoAtualizada.getEquipamento(), doacaoAtualizada.getQuantidade(), doacaoAtualizada.getDescricao(), doacaoAtualizada.getStatus(), doacaoAtualizada.getStatusConservacao(), doacaoAtualizada.getDataCadastro()));
 
         
     }

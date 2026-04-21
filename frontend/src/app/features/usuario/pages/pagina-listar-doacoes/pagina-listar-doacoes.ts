@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -9,24 +9,28 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DoacaoService } from '../../../../core/services/doacao.service';
 
 @Component({
   selector: 'app-pagina-listar-doacoes',
   standalone: true,
-  imports: [CommonModule,RouterLink,DatePipe,MatCardModule,MatTableModule,MatPaginatorModule,MatFormFieldModule,MatInputModule,
+  imports: [CommonModule,DatePipe,MatCardModule,MatTableModule,MatPaginatorModule,MatFormFieldModule,MatInputModule,
             MatButtonModule,MatIconModule,MatTooltipModule],
   templateUrl: './pagina-listar-doacoes.html',
   styleUrl: './pagina-listar-doacoes.css'
 })
 export class PaginaListarDoacoes implements OnInit, AfterViewInit {
   private router = inject(Router);
+  private doacaoService = inject(DoacaoService);
+  private cdRef = inject(ChangeDetectorRef);
+
 
   displayedColumns: string[] = [
     'id',
     'equipamento',
     'statusConservacao',
+    'descricao',
     'dataCadastro',
-    'ultimaAtualizacao',
     'status',
     'acoes'
   ];
@@ -39,10 +43,8 @@ export class PaginaListarDoacoes implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
-    this.carregarDadosMockados();
-
     // chamada de api substituir mock por:
-    // this.buscarDoacoes();
+    this.buscarDoacoes();
   }
 
   ngAfterViewInit(): void {
@@ -53,8 +55,8 @@ export class PaginaListarDoacoes implements OnInit, AfterViewInit {
         ${data.id}
         ${data.equipamento}
         ${data.statusConservacao}
+        ${data.descricao}
         ${data.dataCadastro}
-        ${data.ultimaAtualizacao}
         ${data.status}
       `.toLowerCase();
 
@@ -72,7 +74,6 @@ export class PaginaListarDoacoes implements OnInit, AfterViewInit {
         equipamento: 'Computador',
         statusConservacao: 'NOVO',
         dataCadastro: '2025-05-01',
-        ultimaAtualizacao: '2025-05-01',
         status: 'APROVADA'
       },
       {
@@ -151,11 +152,23 @@ export class PaginaListarDoacoes implements OnInit, AfterViewInit {
   }
 
   buscarDoacoes(): void {
+    // API
     this.carregando = true;
     this.erroAoCarregar = false;
-
-    // API
-    // Endpoint: GET /doacao
+    this.doacaoService.listarDoacoesUsuario().subscribe({
+      next: (doacoes) => {     
+        this.dataSource.data = doacoes;
+        console.log("dados na tabela",this.dataSource.data);
+        this.carregando = false;
+        this.erroAoCarregar = false;
+        this.cdRef.detectChanges();
+      },
+      error: () => {
+        this.carregando = false;
+        this.erroAoCarregar = true;
+      }
+    });
+    
   }
 
   aplicarFiltro(event: Event): void {
@@ -217,8 +230,8 @@ export class PaginaListarDoacoes implements OnInit, AfterViewInit {
 
   tentarNovamente(): void {
     // integração futura com API:
-    // this.buscarDoacoes();
+    this.buscarDoacoes();
 
-    this.carregarDadosMockados();
+   
   }
 }
