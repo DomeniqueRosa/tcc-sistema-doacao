@@ -1,33 +1,29 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Doacao } from '../models/doacao.model';
-import { Observable } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { Doacao } from "../models/doacao.mode";
+import { Injectable, inject } from "@angular/core";
+import { Observable } from "rxjs";
+import { Dashboard } from "../models/dashboard.model";
+
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class DoacaoService {
   private http = inject(HttpClient);
-
   private apiUrl = 'http://localhost:8080/doacao';
 
-  cadastrarDoacao(form: any) {
-    const formData = new FormData();
-
-    formData.append('equipamento', form.equipamento);
-    formData.append('quantidade', String(form.quantidade));
-    formData.append('descricao', form.descricao);
-    formData.append('statusConservacao', form.statusConservacao);
-    formData.append('status', 'PENDENTE');
-
-    if (form.imagem) {
-      formData.append('arquivo', form.imagem);
+    cadastrarDoacao(dados: Doacao): Observable<FormData> {
+        const formData = new FormData();
+        formData.append('equipamento', dados.equipamento);
+        formData.append('quantidade', dados.quantidade.toString());
+        formData.append('descricao', dados.descricao);
+        formData.append('conservacao', dados.conservacao);
+        formData.append('imagem', dados.imagem); 
+    return this.http.post<FormData>(this.apiUrl, formData);
     }
 
-    return this.http.post(this.apiUrl, formData);
-  }
-
-  listarDoacoes(): Observable<Doacao[]> {
-    return this.http.get<Doacao[]>(this.apiUrl);
+    obterDadosDashboard(): Observable<Dashboard> {
+      return this.http.get<Dashboard>(`${this.apiUrl}/dashboard`);
   }
 }

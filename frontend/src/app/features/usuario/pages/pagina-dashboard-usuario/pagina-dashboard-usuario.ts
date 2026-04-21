@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit, ViewChild } from '@angular/core';
 import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxisChartSeries, ApexPlotOptions, ApexResponsive, ApexStroke,
 ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import { MatCardModule } from '@angular/material/card';
+import { DoacaoService } from '../../../../core/services/doacao.service';
+import { delay, delayWhen } from 'rxjs';
+
 
 export type DonutChartOptions = {
   series: ApexNonAxisChartSeries;
@@ -32,16 +35,52 @@ export type BarChartOptions = {
   templateUrl: './pagina-dashboard-usuario.html',
   styleUrl: './pagina-dashboard-usuario.css'
 })
-export class PaginaDashboardUsuario {
+export class PaginaDashboardUsuario implements OnInit {
   @ViewChild('donutChart') donutChart!: ChartComponent;
   @ViewChild('barChart') barChart!: ChartComponent;
 
+  private doacaoService = inject(DoacaoService);
+  private cdr = inject(ChangeDetectorRef);
+  public totalDoacoes = 0;
+  public totalAlunosBeneficiados = 0;
+
+  carregarDadosDashboard(): void {
+    this.doacaoService.obterDadosDashboard()
+    .pipe(delay(0)) // Simula um atraso para mostrar o carregamento
+    .subscribe({
+      next: (dados) => {
+        console.log('Dados do dashboard:', dados);
+        this.totalDoacoes = dados.totalDoacoes;
+        this.totalAlunosBeneficiados = dados.totalDoacoesRealizadas;
+        this.donutChartOptions.series = dados.doacoesPorEquipamento.map(item => item.total);
+        this.donutChartOptions.labels = dados.doacoesPorEquipamento.map(item => item.equipamento);
+
+        const dadosMeses = new Array(12).fill(0); // Inicializa um array com 12 meses
+
+        dados.doacoesPorMes.forEach(item => {
+          const index = Number(item.mes) - 1; // Ajusta o índice (Janeiro = 0, Fevereiro = 1, ...)
+
+          if(index >= 0 && index < 12) {
+            dadosMeses[index] = item.total; // Preenche o total de doações para o mês correspondente
+          }
+          console.log(dadosMeses);
+        });
+        this.barChartOptions.series[0].data = dadosMeses;
+
+        this.cdr.detectChanges(); // Atualiza os gráficos com os novos dados  
+
+      },
+      error: (err) => {
+        console.error('Erro ao carregar dados do dashboard:', err);
+      }
+    });
+  }
+
   // pegar nome do usuário autenticado
-  nomeUsuario = 'Usuário';
+  nomeUsuario = localStorage.getItem('nomeUsuario') || 'Usuário';
 
   // vir da API
-  totalDoacoes = 0;
-  totalAlunosBeneficiados = 0;
+
 
   public donutChartOptions: DonutChartOptions = {
     series: [0, 0],
@@ -89,7 +128,7 @@ export class PaginaDashboardUsuario {
       height: 280
     },
     xaxis: {
-      categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun']
+      categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     },
     yaxis: {
       title: {
@@ -109,7 +148,7 @@ export class PaginaDashboardUsuario {
     }
   };
 
-  constructor() {
-    // chamar API do usuário
+  ngOnInit(): void {
+    this.carregarDadosDashboard();
   }
 }
