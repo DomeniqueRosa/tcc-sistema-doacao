@@ -20,6 +20,9 @@ import { PaginaDashboardTecnico } from './features/tecnico/pages/pagina-dashboar
 // Usuário
 import { PaginaDashboardUsuario } from './features/usuario/pages/pagina-dashboard-usuario/pagina-dashboard-usuario';
 import { PaginaCadastroDoacao } from './features/usuario/pages/pagina-cadastro-doacao/pagina-cadastro-doacao';
+import { PaginaListarDoacoes } from './features/usuario/pages/pagina-listar-doacoes/pagina-listar-doacoes';
+import { PaginaCadastroSolicitacao } from './features/usuario/pages/pagina-cadastro-solicitacao/pagina-cadastro-solicitacao';
+import { PaginaListarSolicitacoes } from './features/usuario/pages/pagina-listar-solicitacoes/pagina-listar-solicitacoes';
 
 
 // Guards
@@ -38,53 +41,72 @@ export const routes: Routes = [
   {
     path: '',
     component: LayoutPrincipal,
-    canActivate: [authGuard],
+    // canActivate: [authGuard],
     children: [
       {
         path: 'admin',
         component: PaginaDashboardAdmin,
-        canActivate: [perfilGuard],
+        // canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
       {
         path: 'admin/usuarios',
         component: PaginaListarUsuarios,
-        canActivate: [perfilGuard],
+        //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
       {
         path: 'admin/usuarios/novo-tecnico',
         component: PaginaCadastrarTecnico,
-        canActivate: [perfilGuard],
+        //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
       {
         path: 'admin/usuarios/editar/:id',
         component: PaginaEditarUsuario,
-        canActivate: [perfilGuard],
+        //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
       {
         path: 'tecnico',
         component: PaginaDashboardTecnico,
-        canActivate: [perfilGuard],
+        //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['TECNICO'] }
       },
       {
         path: 'usuario',
         component: PaginaDashboardUsuario,
-        canActivate: [perfilGuard],
+        //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['USUARIO'] }
       },
        {
         path: 'usuario/cadastro-doacao',
         component: PaginaCadastroDoacao,
-        canActivate: [perfilGuard],
+        //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['USUARIO']}
 
-      }
-    ]
-  },
+      },
+
+      {
+      path: 'usuario/listar-doacoes',
+      component: PaginaListarDoacoes,
+      //canActivate: [perfilGuard],
+      data: { perfisPermitidos: ['USUARIO'] }
+      },
+
+      {
+      path: 'usuario/solicitacao-doacao',
+      component: PaginaCadastroSolicitacao,
+      // canActivate: [perfilGuard],
+      data: { perfisPermitidos: ['USUARIO'] }
+      },
+
+      {
+      path: 'usuario/listar-solicitacoes',
+      component: PaginaListarSolicitacoes,
+      // canActivate: [perfilGuard],
+      data: { perfisPermitidos: ['USUARIO'] }
+      },
   {
     path: '',
     redirectTo: 'login',
@@ -93,5 +115,7 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: 'login'
+  }
+    ]
   }
 ];

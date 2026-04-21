@@ -1,3 +1,7 @@
+<div class="botao-voltar" (click)="voltar()">
+  <mat-icon>arrow_back</mat-icon>
+</div>
+
 <div class="pagina-doacao">
   <div class="topo-pagina">
     <div>
@@ -8,7 +12,12 @@
 
   <mat-card class="card-doacao">
     <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="confirmar()" class="form-doacao">
+      <form
+        [formGroup]="form"
+        (ngSubmit)="confirmar(formDirective)"
+        #formDirective="ngForm"
+        class="form-doacao"
+      >
 
         <section class="bloco-formulario">
           <div class="titulo-bloco">
@@ -23,7 +32,8 @@
                   {{ tipo }}
                 </mat-option>
               </mat-select>
-              <mat-error *ngIf="tipoItem?.hasError('required')">
+
+              <mat-error *ngIf="tipoItem?.hasError('required') && tipoItem?.touched">
                 Selecione o tipo do item.
               </mat-error>
             </mat-form-field>
@@ -31,10 +41,12 @@
             <mat-form-field appearance="outline">
               <mat-label>Quantidade</mat-label>
               <input matInput type="number" formControlName="quantidade" min="1" />
-              <mat-error *ngIf="quantidade?.hasError('required')">
+
+              <mat-error *ngIf="quantidade?.hasError('required') && quantidade?.touched">
                 Informe a quantidade.
               </mat-error>
-              <mat-error *ngIf="quantidade?.hasError('min')">
+
+              <mat-error *ngIf="quantidade?.hasError('min') && quantidade?.touched">
                 A quantidade deve ser no mínimo 1.
               </mat-error>
             </mat-form-field>
@@ -47,11 +59,14 @@
                 matInput
                 rows="4"
                 formControlName="descricao"
-                placeholder="Descreva o item, estado geral, defeitos ou observações"></textarea>
-              <mat-error *ngIf="descricao?.hasError('required')">
+                placeholder="Descreva o item, estado geral, defeitos ou observações"
+              ></textarea>
+
+              <mat-error *ngIf="descricao?.hasError('required') && descricao?.touched">
                 A descrição é obrigatória.
               </mat-error>
-              <mat-error *ngIf="descricao?.hasError('minlength')">
+
+              <mat-error *ngIf="descricao?.hasError('minlength') && descricao?.touched">
                 Escreva uma descrição um pouco mais detalhada.
               </mat-error>
             </mat-form-field>
@@ -81,7 +96,8 @@
               type="button"
               mat-stroked-button
               color="warn"
-              (click)="removerImagem()">
+              (click)="removerImagem()"
+            >
               <mat-icon>delete</mat-icon>
               Remover imagem
             </button>
@@ -106,7 +122,12 @@
             Confirmar doação
           </button>
 
-          <button type="button" mat-stroked-button class="botao-cancelar" (click)="cancelar()">
+          <button
+            type="button"
+            mat-stroked-button
+            class="botao-cancelar"
+            (click)="cancelar(formDirective)"
+          >
             <mat-icon>close</mat-icon>
             Cancelar
           </button>
@@ -116,3 +137,4 @@
     </mat-card-content>
   </mat-card>
 </div>
+

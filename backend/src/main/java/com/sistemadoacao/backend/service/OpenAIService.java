@@ -23,7 +23,7 @@ public class OpenAIService {
 
     private final String apiKey;
 
-    public OpenAIService(@Value("${open.ia.api.key}") String apiKey) {
+    public OpenAIService(@Value("${open.ia.api.key:}") String apiKey) {
         this.apiKey = apiKey;
     }
 

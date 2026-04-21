@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators} from '@angular/forms';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -16,18 +17,8 @@ import { Doacao } from '../../../../core/models/doacao.mode';
 @Component({
   selector: 'app-pagina-cadastro-doacao',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatRadioModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule
-  ],
+  imports: [ CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatRadioModule,
+            MatButtonModule, MatIconModule, MatDialogModule ],
   templateUrl: './pagina-cadastro-doacao.html',
   styleUrl: './pagina-cadastro-doacao.css'
 })
@@ -41,7 +32,7 @@ export class PaginaCadastroDoacao {
 
   form = this.fb.group({
     tipoItem: ['', Validators.required],
-    quantidade: [1, [Validators.required, Validators.min(1)]],
+    quantidade: [null, [Validators.required, Validators.min(1)]],
     descricao: ['', [Validators.required, Validators.minLength(5)]],
     estadoConservacao: ['USADO', Validators.required],
     imagem: [null as File | null]
@@ -54,6 +45,10 @@ export class PaginaCadastroDoacao {
     'TECLADO',
     'MOUSE'
   ];
+
+  voltar(): void {
+    this.router.navigate(['/usuario/listar-doacoes']);
+  }
 
   selecionarImagem(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -79,7 +74,7 @@ export class PaginaCadastroDoacao {
     this.form.patchValue({ imagem: null });
   }
 
-  confirmar(): void {
+  confirmar(formDirective: FormGroupDirective): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -116,7 +111,7 @@ export class PaginaCadastroDoacao {
   private resetarFormulario(): void {
     this.form.reset({
       tipoItem: '',
-      quantidade: 1,
+      quantidade: null,
       descricao: '',
       estadoConservacao: 'USADO',
       imagem: null
