@@ -3,6 +3,7 @@ import { Doacao } from "../models/doacao.mode";
 import { Injectable, inject } from "@angular/core";
 import { Observable } from "rxjs";
 import { Dashboard } from "../models/dashboard.model";
+import { DoacaoDTO } from "../dto/daocao.dto";
 
 
 @Injectable({
@@ -26,4 +27,10 @@ export class DoacaoService {
     obterDadosDashboard(): Observable<Dashboard> {
       return this.http.get<Dashboard>(`${this.apiUrl}/dashboard`);
   }
+
+    listarDoacoesUsuario(): Observable<DoacaoDTO[]> {
+        return this.http.get<DoacaoDTO[]>(`${this.apiUrl}/usuario`);
+    }
+
+
 }

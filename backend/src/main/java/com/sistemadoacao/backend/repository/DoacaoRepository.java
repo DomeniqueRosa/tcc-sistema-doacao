@@ -37,4 +37,6 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
 
         List<Doacao> findByStatus(Status status);
 
+        List<Doacao> findByDoadorId(Long id);
+
 }
