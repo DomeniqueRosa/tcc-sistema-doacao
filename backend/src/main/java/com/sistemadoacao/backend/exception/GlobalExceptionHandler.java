@@ -72,5 +72,15 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleReprovarErroException(ReprovarErroException ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
-    
+
+    @ExceptionHandler(UserJaExisteException.class)
+    public ResponseEntity<String> handleUserJaExisteException(UserJaExisteException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Ocorreu um erro inesperado: " + ex.getMessage());
+    }
+
 }

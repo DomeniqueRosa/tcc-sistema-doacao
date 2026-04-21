@@ -55,8 +55,11 @@ public class DoacaoController {
     @Operation(summary = "Listar todas as doações", description = "Retorna uma lista de todas as doações cadastradas no sistema.")
     @ApiResponse(responseCode = "200", description = "Doacoes encontrados com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<List<Doacao>> listarDoacoes() {
-        return ResponseEntity.ok(doacaoService.listarDoacoes());
+    public ResponseEntity<List<DoacaoResponseDTO>> listarDoacoes() {
+        return ResponseEntity.ok(doacaoService.listarDoacoes()
+                .stream()
+                .map(DoacaoResponseDTO::new)
+                .toList());
     }
 
     @GetMapping("tipo/{equipamento}")
