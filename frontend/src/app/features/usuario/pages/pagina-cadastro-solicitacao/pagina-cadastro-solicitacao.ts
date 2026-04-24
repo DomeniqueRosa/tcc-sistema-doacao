@@ -8,6 +8,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
+import { SolicitacaoDTO } from '../../../../core/dto/solicitacao.dto';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-pagina-cadastro-solicitacao',
@@ -20,7 +23,8 @@ import { MatInputModule } from '@angular/material/input';
     MatInputModule,
     MatCheckboxModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    MatSnackBarModule
   ],
   templateUrl: './pagina-cadastro-solicitacao.html',
   styleUrl: './pagina-cadastro-solicitacao.css'
@@ -28,6 +32,8 @@ import { MatInputModule } from '@angular/material/input';
 export class PaginaCadastroSolicitacao {
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private solicitacaoService = inject(SolicitacaoService);
+
 
   form = this.fb.group({
     curso: ['', Validators.required],
@@ -36,9 +42,32 @@ export class PaginaCadastroSolicitacao {
     semComputador: [false, Validators.requiredTrue],
     matriculaAtiva: [false, Validators.requiredTrue]
   });
+  snackBar: any;
 
   voltar(): void {
     this.router.navigate(['/usuario/listar-solicitacoes']);
+  }
+
+  cadastrar(): void {
+    const dados: SolicitacaoDTO = {
+      curso: this.form.value.curso!,
+      grr: this.form.value.grr!,
+      motivo: this.form.value.motivo!,
+      semComputador: this.form.value.semComputador!,
+      ativo: this.form.value.matriculaAtiva!
+    }
+
+    this.solicitacaoService.cadastrarSolicitacao(dados).subscribe({
+      next: (dados) => {
+      
+        alert('Solicitação cadastrada com sucesso!' +dados);
+        
+      },
+      error: () => {
+        
+        alert('Erro ao cadastrar solicitação');
+      }
+    })
   }
 
   confirmar(formDirective: FormGroupDirective): void {
@@ -47,24 +76,18 @@ export class PaginaCadastroSolicitacao {
       return;
     }
 
-    // chamada api
-    // this.solicitacaoService.cadastrarSolicitacao(this.form.value).subscribe({
-    //   next: () => { ... },
-    //   error: (erro) => { ... }
-    // });
+    this.cadastrar();
 
     console.log('Dados da solicitação:', this.form.value);
 
-    alert('Solicitação preenchida com sucesso!');
-
-    this.resetarFormulario(formDirective);
+  
   }
 
   cancelar(formDirective: FormGroupDirective): void {
     this.resetarFormulario(formDirective);
   }
 
-  private resetarFormulario(formDirective: FormGroupDirective): void {
+  resetarFormulario(formDirective: FormGroupDirective): void {
     this.form.reset({
       curso: '',
       grr: '',
