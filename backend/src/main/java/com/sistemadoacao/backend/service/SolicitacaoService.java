@@ -17,6 +17,7 @@ import com.sistemadoacao.backend.model.Solicitacao;
 import com.sistemadoacao.backend.model.Status;
 import com.sistemadoacao.backend.repository.DoacaoRepository;
 import com.sistemadoacao.backend.repository.SolicitacaoRepository;
+import com.sistemadoacao.backend.exception.*;
 
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -31,9 +32,14 @@ public class SolicitacaoService {
     public SolicitacaoService(SolicitacaoRepository solicitacaoRepository, DoacaoRepository doacaoRepository) {
         this.solicitacaoRepository = solicitacaoRepository;
         this.doacaoRepository = doacaoRepository;
+
     }
 
     public Solicitacao save(SolicitacaoRequestDTO solicitacao, Long usuarioId) {
+
+        if (usuarioId == null) {
+            throw new IdNullException("Id usuario null ao cadastrar solicitação");
+        }
 
         // Lógica de negócio: Solicitação sempre inicia com status PENDENTE
         Solicitacao solicitacaoEntity = new Solicitacao();
@@ -44,6 +50,7 @@ public class SolicitacaoService {
         solicitacaoEntity.setSem_computador(solicitacao.semComputador());
         solicitacaoEntity.setAtivo(solicitacao.ativo());
         solicitacaoEntity.setStatus(Status.PENDENTE);
+        log.info(solicitacaoEntity.toString());
 
         // Historico
         HistoricoSolicitacao h = new HistoricoSolicitacao();
@@ -53,7 +60,7 @@ public class SolicitacaoService {
         h.setStatus(Status.PENDENTE);
 
         h.setSolicitacao(solicitacaoEntity);
-        
+
         solicitacaoEntity.getHistorico().add(h);
 
         log.info("Salvando solicitação para usuário ID: {}", usuarioId);
@@ -64,22 +71,42 @@ public class SolicitacaoService {
     }
 
     public List<Solicitacao> findByUsuarioId(Long id) {
+
+        if (id == null) {
+            throw new IdNullException("Id usuario null ao buscar solicitacoes");
+        }
+
+        List<Solicitacao> solicitacoes = solicitacaoRepository.findAllByUsuarioId(id);
+
+        if (solicitacoes.isEmpty()) {
+            log.warn("Nenhuma solicitação encontrada para o usuário ID: {}", id);
+            throw new NotFoundException("Nenhuma solicitacao cadastrada para usuario");
+        }
         return solicitacaoRepository.findAllByUsuarioId(id);
     }
 
     public Solicitacao findById(@NonNull Long id) throws Exception {
         return solicitacaoRepository.findById(id)
-                .orElseThrow(() -> new Exception("Solicitação não encontrada com ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Solicitação não encontrada com ID: " + id));
     }
 
     public List<Solicitacao> findAll() {
-        return solicitacaoRepository.findAll();
+        List<Solicitacao> solicitacoes = solicitacaoRepository.findAll();
+        if (solicitacoes.isEmpty()) {
+            throw new NotFoundException("Nenhuma solicitacao cadastrada");
+
+        }
+        return solicitacoes;
+
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
+    // @PreAuthorize("hasRole('ADMINISTRADOR')")
     public void delete(@NonNull Long id) {
 
-        
+        if (id == null) {
+            throw new IdNullException("Erro ao deletar solicitacao com id null");
+        }
+
         // historico
         HistoricoSolicitacao h = new HistoricoSolicitacao();
         h.setDataAlteracao(LocalDateTime.now());
@@ -90,15 +117,16 @@ public class SolicitacaoService {
         try {
             Solicitacao s = findById(id);
             h.setSolicitacao(s);
-            
+
         } catch (Exception e) {
             log.error("Erro ao buscar solicitacao para deletar.");
+            throw new IdNullException("Erro ao buscar solicitacao para deletar");
         }
 
         solicitacaoRepository.deleteById(id);
+        log.info("Solicitacao deletada com sucesso" + id);
     }
 
-    
     public Solicitacao uptadeSolicitacao(Long id, SolicitacaoRequestDTO dto) {
         try {
             Solicitacao existente = findById(id);
@@ -118,7 +146,7 @@ public class SolicitacaoService {
                 existente.setAtivo(dto.ativo());
             } else {
                 log.warn("Solicitação com ID {} não encontrada para atualização.", id);
-                return null;
+                throw new IdNullException("Erro ao atualizar solicitação com id null");
             }
 
             log.info("Atualizando solicitação ID {} com novos dados: {}", id, existente);
@@ -126,16 +154,21 @@ public class SolicitacaoService {
 
         } catch (Exception e) {
             log.error("Erro ao atualizar solicitação ID {}: {}", id, e.getMessage());
-            return null;
+            throw new ErroCadastoException("Erro ao atualizar solicitacao");
 
         }
 
     }
 
-    @PreAuthorize("hasRole('USUARIO')")
+    // @PreAuthorize("hasRole('USUARIO')")
     public void aprovarSolicitacao(Long id) {
         try {
             Solicitacao existente = findById(id);
+
+            if (existente == null) {
+                log.info("solicicao com id", id);
+                throw new IdNullException("Erro ao aprovar solicitacao com id null");
+            }
 
             // Criar e Adicionar o Histórico
             HistoricoSolicitacao historico = new HistoricoSolicitacao();
@@ -149,13 +182,15 @@ public class SolicitacaoService {
             existente.getHistorico().add(historico);
             existente.setStatus(Status.APROVADO);
             solicitacaoRepository.save(existente);
-        } catch( AccessDeniedException e1){
+
+            log.info("Solicitacao aprovado - ", id);
+
+        } catch (AccessDeniedException e1) {
             log.error("Usuario não tem permisao para aprovar {}", e1.getMessage());
 
-            
         } catch (Exception e) {
             log.error("Erro ao aprovar solicitação ID {}: {}", id, e.getMessage());
-            throw new RuntimeException("Erro ao aprovar");
+            throw new ErroCadastoException("Erro ao aprovar solicitação");
         }
     }
 
@@ -171,7 +206,6 @@ public class SolicitacaoService {
             historico.setExecutor(getNomeUsuarioLogado());
             historico.setStatus(Status.REPROVADO);
 
-
             historico.setSolicitacao(existente);
             // Atualizar histórico da solicitação
             existente.getHistorico().add(historico);
@@ -182,24 +216,25 @@ public class SolicitacaoService {
         }
     }
 
-    @PreAuthorize("hasRole('ADMINISTRADOR')")
-    public Solicitacao selecionarDoacaoSolicitacao(@NonNull Long solicitacaoId, @NonNull Long doacaoId)
-            throws Exception {
-        Solicitacao solicitacao = findById(solicitacaoId);
-        Doacao doacaoEscolhida = doacaoRepository.findById(doacaoId)
-                .orElseThrow(() -> new Exception("Doação não encontrada com ID: " + doacaoId));
-        if (solicitacao == null) {
-            throw new Exception("Solicitação não encontrada com ID: " + solicitacaoId);
-        }
+    // @PreAuthorize("hasRole('ADMINISTRADOR')")
+    public Solicitacao selecionarDoacaoSolicitacao(@NonNull Long solicitacaoId, @NonNull Long doacaoId) {
+
+        try {
+            Solicitacao solicitacao = solicitacaoRepository.findById(solicitacaoId)
+                    .orElseThrow(() -> new Exception("Solicitação não encontrada com ID: " + solicitacaoId));
+
+            Doacao doacaoEscolhida = doacaoRepository.findById(doacaoId)
+                    .orElseThrow(() -> new Exception("Doação não encontrada com ID: " + doacaoId));
+        
 
         if (solicitacao.getStatus() != Status.APROVADO) {
             log.error("Solicitação com ID: {} não está aprovada. Status atual: {}", solicitacaoId,
                     solicitacao.getStatus());
-            throw new Exception("Solicitação com ID: " + solicitacaoId + " não está aprovada.");
+            throw new AprovarErroException("Solicitação com ID: " + solicitacaoId + " não está aprovada.");
         }
 
         if (doacaoEscolhida == null) {
-            throw new Exception("Doação não encontrada com ID: " + doacaoId);
+            throw new IdNullException("Doação não encontrada com ID: " + doacaoId);
         }
 
         List<Status> statusPermitidos = List.of(Status.APROVADO, Status.APROVADO_IA);
@@ -207,8 +242,9 @@ public class SolicitacaoService {
         if (!statusPermitidos.contains(doacaoEscolhida.getStatus())) {
             log.error("Doação com ID: {} não está disponível para seleção. Status atual: {}", doacaoId,
                     doacaoEscolhida.getStatus());
-            throw new Exception("Doação com ID: " + doacaoId + " não está disponível.");
+            throw new AprovarErroException("Doação com ID: " + doacaoId + " não está disponível.");
         }
+        
 
         // --- PARTE DA DOAÇÃO ---
         HistoricoDoacao historicoDoacao = new HistoricoDoacao();
@@ -237,6 +273,9 @@ public class SolicitacaoService {
         solicitacao.getHistorico().add(h);
 
         return solicitacaoRepository.save(solicitacao);
+        } catch (Exception e) {
+            throw new AprovarErroException("Erro ao vincular doacao a solicitacao");
+        }
     }
 
     private String getNomeUsuarioLogado() {
