@@ -2,10 +2,13 @@ import { HttpClient } from "@angular/common/http";
 import { inject, Injectable } from "@angular/core";
 import { SolicitacaoDTO } from "../dto/solicitacao.dto";
 import { Observable } from "rxjs";
+import { SolicitacaoResponseDTO } from "../dto/solicitacao.response";
 
 @Injectable({
   providedIn: 'root'
 })
+
+
 
 export class SolicitacaoService {
 
@@ -14,5 +17,8 @@ export class SolicitacaoService {
 
     cadastrarSolicitacao(dados: SolicitacaoDTO): Observable<SolicitacaoDTO> {
         return this.http.post<SolicitacaoDTO>(this.apiUrl, dados);
+    }
+    listarSolicitacaoUsuario(): Observable<SolicitacaoResponseDTO[]> {
+        return this.http.get<SolicitacaoResponseDTO[]>(`${this.apiUrl}/usuario`);
     }
 }
