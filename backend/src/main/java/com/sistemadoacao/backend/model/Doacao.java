@@ -7,6 +7,7 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -96,6 +97,7 @@ public class Doacao {
 
     @ManyToOne
     @JoinColumn(name = "solicitacao_id") 
+    @JsonBackReference
     private Solicitacao solicitacao;
 
 }

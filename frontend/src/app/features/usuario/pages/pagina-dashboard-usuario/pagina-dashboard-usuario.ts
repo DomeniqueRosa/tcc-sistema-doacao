@@ -4,7 +4,7 @@ import { ApexAxisChartSeries, ApexChart, ApexDataLabels, ApexLegend, ApexNonAxis
 ApexTitleSubtitle, ApexXAxis, ApexYAxis, ChartComponent, NgApexchartsModule } from 'ng-apexcharts';
 import { MatCardModule } from '@angular/material/card';
 import { DoacaoService } from '../../../../core/services/doacao.service';
-import { delay, delayWhen } from 'rxjs';
+
 
 
 export type DonutChartOptions = {
@@ -46,7 +46,7 @@ export class PaginaDashboardUsuario implements OnInit {
 
   carregarDadosDashboard(): void {
     this.doacaoService.obterDadosDashboard()
-    .pipe(delay(0)) // Simula um atraso para mostrar o carregamento
+    
     .subscribe({
       next: (dados) => {
         console.log('Dados do dashboard:', dados);
@@ -59,13 +59,17 @@ export class PaginaDashboardUsuario implements OnInit {
 
         dados.doacoesPorMes.forEach(item => {
           const index = Number(item.mes) - 1; // Ajusta o índice (Janeiro = 0, Fevereiro = 1, ...)
-
-          if(index >= 0 && index < 12) {
             dadosMeses[index] = item.total; // Preenche o total de doações para o mês correspondente
-          }
-          console.log(dadosMeses);
         });
-        this.barChartOptions.series[0].data = dadosMeses;
+        
+
+        this.barChartOptions = {
+          ...this.barChartOptions,
+          series: [{
+            ...this.barChartOptions.series[0], 
+            data: [...dadosMeses] // Nova referência de array
+          }]
+        };
 
         this.cdr.detectChanges(); // Atualiza os gráficos com os novos dados  
 

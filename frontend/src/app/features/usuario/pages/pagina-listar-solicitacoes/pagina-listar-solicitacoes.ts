@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -10,13 +10,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
+import { SolicitacaoService } from '../../../../core/services/solicitacao.service';
 
 @Component({
   selector: 'app-pagina-listar-solicitacoes',
   standalone: true,
   imports: [
     CommonModule,
-    RouterLink,
     DatePipe,
     MatCardModule,
     MatTableModule,
@@ -33,6 +33,9 @@ import { MatMenuModule } from '@angular/material/menu';
 })
 export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
   private router = inject(Router);
+  private solicitacaoService = inject(SolicitacaoService);
+  private cdf = inject(ChangeDetectorRef);
+
 
   displayedColumns: string[] = [
     'id',
@@ -51,22 +54,25 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   ngOnInit(): void {
-    this.carregarDadosMockados();
-
+    // this.carregarDadosMockados();
     // depois substituir pela chamada de api
-    // this.buscarSolicitacoes();
+    this.buscarSolicitacoes();
   }
 
   ngAfterViewInit(): void {
     this.dataSource.paginator = this.paginator;
+
+  
 
     this.dataSource.filterPredicate = (data: any, filter: string) => {
       const texto = `
         ${data.id}
         ${data.equipamento}
         ${data.dataCadastro}
-        ${data.ultimaAtualizacao}
+        ${data.dataAlteracao}
         ${data.status}
+        ${data.semComputador}
+        ${data.ativo}}
       `.toLowerCase();
 
       return texto.includes(filter);
@@ -155,8 +161,23 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
     this.carregando = true;
     this.erroAoCarregar = false;
 
-    // chamda de api
-    // GET /solicitacao
+    this.solicitacaoService.listarSolicitacaoUsuario().subscribe({
+      next: (solicitacoes) => {
+        this.dataSource.data = solicitacoes;
+        console.log(solicitacoes);
+
+        
+        this.carregando = false;
+        this.erroAoCarregar = false;
+        this.cdf.detectChanges();
+      },
+      error: () => {
+        this.carregando = false;
+        this.erroAoCarregar = true;
+      }
+    });
+
+    
   }
 
   aplicarFiltro(event: Event): void {
@@ -186,8 +207,8 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
       case 'REPROVADA':
       case 'REPROVADO':
         return 'status-reprovado';
-      case 'EM_ANALISE':
-        return 'status-analise';
+      case 'PENDENTE':
+        return 'status-pendente';
       case 'ENTREGUE_DOADO':
       case 'DOADO':
         return 'status-entregue';
@@ -206,6 +227,8 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
         return 'Em_Análise';
       case 'ENTREGUE_DOADO':
         return 'Entregue/Doado';
+      case 'PENDENTE':
+        return 'PENDENTE';
       default:
         return status;
     }
@@ -213,7 +236,7 @@ export class PaginaListarSolicitacoes implements OnInit, AfterViewInit {
 
   tentarNovamente(): void {
     // chamda de api 
-    // this.buscarSolicitacoes();
+    this.buscarSolicitacoes();
 
     this.carregarDadosMockados();
   }

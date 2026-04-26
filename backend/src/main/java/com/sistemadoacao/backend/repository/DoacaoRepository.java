@@ -26,7 +26,8 @@ public interface DoacaoRepository extends JpaRepository<Doacao, Long> {
                         "FROM historico_status d " +
                         "WHERE d.tipo_entidade = 'doacao' " +
                         "AND d.status = 'DOADO' " +
-                        "GROUP BY MONTH(d.data_alteracao)",
+                        "GROUP BY MONTH(d.data_alteracao)" +
+                        "ORDER BY MONTH(d.data_alteracao) ASC",
                 nativeQuery = true)
         List<Object[]> findDoacoesMensais();
 

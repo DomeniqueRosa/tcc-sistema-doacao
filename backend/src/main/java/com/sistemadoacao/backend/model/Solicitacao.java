@@ -7,6 +7,8 @@ import java.util.List;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -58,6 +60,7 @@ public class Solicitacao {
     private List<HistoricoSolicitacao> historico = new ArrayList<>(); 
 
     @OneToMany(mappedBy = "solicitacao", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<Doacao> doacoes = new ArrayList<>();
 
     public Solicitacao(String curso, String grr, String motivo, LocalDate dataCadastro, Status status, boolean ativo,

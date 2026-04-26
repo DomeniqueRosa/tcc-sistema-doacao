@@ -5,7 +5,6 @@ import com.sistemadoacao.backend.model.Pessoa;
 
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,22 +47,9 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<Solicitacao> cadastrarSolicitacao(@RequestBody SolicitacaoRequestDTO dto,
             @AuthenticationPrincipal Pessoa principal) {
-        if (principal == null) {
-            log.error("O objeto principal está nulo. Verifique se o SecurityFilter está injetando o usuário.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        log.info("Criando solicitação para o usuário ID: {}", principal.getId());
-        
-
-        try {
-            return ResponseEntity.ok(service.save(dto, principal.getId()));
-        } catch (Exception e) {
-            log.error("Erro ao criar solicitação: {}", e.getMessage());
-            return ResponseEntity.badRequest().build();
-        }
+        return ResponseEntity.ok(service.save(dto, principal.getId()));
     }
-
+    
     @GetMapping("/usuario")
     @Operation(summary = "Lista solicitações do usuário autenticado", description = "Retorna todas as solicitações associadas ao usuário autenticado.")
     @ApiResponse(responseCode = "200", description = "Lista de solicitações retornada com sucesso")
@@ -71,20 +57,7 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "404", description = "Nenhuma solicitação encontrada para o usuário", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<List<Solicitacao>> listarPorUsuario(@AuthenticationPrincipal Pessoa principal) {
-        if (principal == null) {
-            log.error("O objeto principal está nulo. Verifique se o SecurityFilter está injetando o usuário.");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-
-        log.info("Obtendo solicitação para o usuário ID: {}", principal.getId());
-
-        List<Solicitacao> solicitacao = service.findByUsuarioId(principal.getId());
-        if (solicitacao != null) {
-            return ResponseEntity.ok(solicitacao);
-        } else {
-            log.warn("Nenhuma solicitação encontrada para o usuário ID: {}", principal.getId());
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        return ResponseEntity.ok(service.findByUsuarioId(principal.getId()));
     }
 
     @GetMapping
@@ -92,16 +65,7 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "200", description = "Lista de solicitações retornada com sucesso")
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<List<Solicitacao>> listarTodos() {
-
-        try {
-            log.info("Obtendo todas as solicitações");
-            List<Solicitacao> solicitacoes = service.findAll(); // Ajuste conforme necessário
-            return ResponseEntity.ok(solicitacoes);
-            
-        } catch (Exception e) {
-            log.error("Erro ao obter solicitações: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(service.findAll());
     }
 
     @DeleteMapping("/{id}")
@@ -110,33 +74,18 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<Void> deletarSolicitacao(@PathVariable Long id) {
-        log.info("Deletando solicitação ID: {}", id);
-        try {
-            service.delete(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (Exception e) {
-            log.error("Erro ao deletar solicitação ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}")
     @Operation(summary = "Atualiza uma solicitação pelo ID", description = "Atualiza os dados de uma solicitação pelo ID fornecido.")
     @ApiResponse(responseCode = "200", description = "Solicitação atualizada com sucesso")
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
+    @ApiResponse(responseCode = "404", description = "Solicitação não encontrada", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
     public ResponseEntity<Solicitacao> atualizarSolicitacao(@PathVariable Long id, @RequestBody SolicitacaoRequestDTO dto) {
-        log.info("Atualizando solicitação ID: {}", id);
-        
-        try {
-            log.info("Dados que estao sendo passado:{}", dto);
-            service.uptadeSolicitacao(id, dto);
-            return ResponseEntity.status(HttpStatus.OK).build();
-            
-        } catch (Exception e) {
-            log.info("Erro ao atualizar solicitação ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok(service.uptadeSolicitacao(id, dto));
     }
 
     @PatchMapping("/aprovar/{id}")
@@ -144,17 +93,9 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "200", description = "Solicitação aprovada com sucesso")
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Solicitacao> aprovarSolicitacao(@PathVariable Long id) {
-        log.info("Aprovando solicitação ID: {}", id);
-        
-        try {
-            service.aprovarSolicitacao(id);
-            return ResponseEntity.status(HttpStatus.OK).build();
-
-        } catch (Exception e) {
-            log.error("Erro ao aprovar solicitação ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Void> aprovarSolicitacao(@PathVariable Long id) {
+        service.aprovarSolicitacao(id);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/reprovar/{id}")
@@ -162,17 +103,9 @@ public class SolicitacaoController {
     @ApiResponse(responseCode = "200", description = "Solicitação reprovada com sucesso")
     @ApiResponse(responseCode = "403", description = "Usuário não autenticado", content = @Content)
     @ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content)
-    public ResponseEntity<Solicitacao> reprovarSolicitacao(@PathVariable Long id) {
-        log.info("Reprovando solicitação ID: {}", id);
-        
-        try {
-            service.reprovarSolicitacao(id);
-            return ResponseEntity.status(HttpStatus.OK).build();
-
-        } catch (Exception e) {
-            log.error("Erro ao reprovar solicitação ID {}: {}", id, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+    public ResponseEntity<Void> reprovarSolicitacao(@PathVariable Long id) {
+        service.reprovarSolicitacao(id);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/{solicitacaoId}/selecionar-doacao")
@@ -184,16 +117,8 @@ public class SolicitacaoController {
             @PathVariable Long solicitacaoId,
             @RequestBody Long doacaoId
         ) {
-        log.info("Selecionando doação ID: {} para solicitação ID: {}", doacaoId, solicitacaoId);
-        
-        try {
-            Solicitacao atualizado = service.selecionarDoacaoSolicitacao(solicitacaoId, doacaoId);
-            return ResponseEntity.ok(atualizado);
+            return ResponseEntity.ok(service.selecionarDoacaoSolicitacao(solicitacaoId, doacaoId));
 
-        } catch (Exception e) {
-            log.error("Erro ao selecionar doação ID {} para solicitação ID {}: {}", doacaoId, solicitacaoId, e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
     }
 
 
