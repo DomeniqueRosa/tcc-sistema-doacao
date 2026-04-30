@@ -16,6 +16,8 @@ import { PaginaEditarUsuario } from './features/admin/pages/pagina-editar-usuari
 
 // Técnico
 import { PaginaDashboardTecnico } from './features/tecnico/pages/pagina-dashboard-tecnico/pagina-dashboard-tecnico';
+import { PaginaDoacoesTecnicoComponent } from './features/tecnico/pages/pagina-doacoes-tecnico/pagina-doacoes-tecnico';
+import { PaginaDetalhesDoacaoTecnico } from './features/tecnico/pages/pagina-detalhes-doacao-tecnico/pagina-detalhes-doacao-tecnico';
 
 // Usuário
 import { PaginaDashboardUsuario } from './features/usuario/pages/pagina-dashboard-usuario/pagina-dashboard-usuario';
@@ -71,6 +73,17 @@ export const routes: Routes = [
         path: 'tecnico',
         component: PaginaDashboardTecnico,
         //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['TECNICO'] }
+      },
+      {
+        path: 'tecnico/doacoes',
+        component: PaginaDoacoesTecnicoComponent,
+        // canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['TECNICO'] }
+      },
+      {
+        path: 'tecnico/doacoes/:id',
+        component: PaginaDetalhesDoacaoTecnico,
         data: { perfisPermitidos: ['TECNICO'] }
       },
       {
