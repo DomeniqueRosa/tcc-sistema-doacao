@@ -4,10 +4,13 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatRadioModule } from '@angular/material/radio';
+import { ModalAprovacao } from './modal-aprovacao/modal-aprovacao';
+import { ModalReprovacao } from './modal-reprovacao/modal-reprovacao';
 
 interface DetalhesDoacaoTecnico {
   id: string;
@@ -25,16 +28,8 @@ interface DetalhesDoacaoTecnico {
 @Component({
   selector: 'app-pagina-detalhes-doacao-tecnico',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatRadioModule,
-    MatButtonModule,
-    MatIconModule
-  ],
+  imports: [ CommonModule, ReactiveFormsModule, MatCardModule, MatFormFieldModule, MatInputModule, MatRadioModule, MatButtonModule,
+    MatIconModule, MatDialogModule ],
   templateUrl: './pagina-detalhes-doacao-tecnico.html',
   styleUrls: ['./pagina-detalhes-doacao-tecnico.css']
 })
@@ -43,6 +38,7 @@ export class PaginaDetalhesDoacaoTecnico {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private fb = inject(FormBuilder);
+  private dialog = inject(MatDialog);
 
   idDoacao = this.route.snapshot.paramMap.get('id');
 
@@ -79,20 +75,38 @@ export class PaginaDetalhesDoacaoTecnico {
   }
 
   aprovar(): void {
-    console.log('Aprovar doação:', this.doacao.id);
+    const dialogRef = this.dialog.open(ModalAprovacao, {
+      width: '520px'
+    });
 
-    // chamada api para aprovar
+    dialogRef.afterClosed().subscribe(resultado => {
+      if (resultado) {
+        console.log('Aprovar doação:', this.doacao.id, resultado);
+
+        // chamada api para aprovar
+      }
+    });
   }
 
   reprovar(): void {
-    console.log('Reprovar doação:', this.doacao.id);
+    const dialogRef = this.dialog.open(ModalReprovacao, {
+      width: '520px'
+    });
 
-    // chamada api para reprovar
+    dialogRef.afterClosed().subscribe(justificativa => {
+      if (justificativa) {
+        console.log('Reprovar doação:', this.doacao.id, justificativa);
+
+        // chamada api para reprovar
+      }
+    });
   }
 
   enviarParaReparo(): void {
     console.log('Enviar para reparo:', this.doacao.id);
 
     // chamada api para marcar como reparo
+
+    this.router.navigate(['/tecnico/doacoes', this.doacao.id, 'reparo']);
   }
 }
