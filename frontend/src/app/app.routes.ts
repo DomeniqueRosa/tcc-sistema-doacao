@@ -13,6 +13,7 @@ import { PaginaDashboardAdmin } from './features/admin/pages/pagina-dashboard-ad
 import { PaginaListarUsuarios } from './features/admin/pages/pagina-listar-usuarios/pagina-listar-usuarios';
 import { PaginaCadastrarTecnico } from './features/admin/pages/pagina-cadastrar-tecnico/pagina-cadastrar-tecnico';
 import { PaginaEditarUsuario } from './features/admin/pages/pagina-editar-usuario/pagina-editar-usuario';
+import { PaginaDetalhesTecnico } from './features/admin/pages/pagina-detalhes-tecnico/pagina-detalhes-tecnico';
 
 // Técnico
 import { PaginaDashboardTecnico } from './features/tecnico/pages/pagina-dashboard-tecnico/pagina-dashboard-tecnico';
@@ -20,6 +21,8 @@ import { PaginaDoacoesTecnicoComponent } from './features/tecnico/pages/pagina-d
 import { PaginaDetalhesDoacaoTecnico } from './features/tecnico/pages/pagina-detalhes-doacao-tecnico/pagina-detalhes-doacao-tecnico';
 import { PaginaHistoricoReparosComponent } from './features/tecnico/pages/pagina-historico-reparos/pagina-historico-reparos';
 import { PaginaReparoDoacaoComponent } from './features/tecnico/pages/pagina-reparo-doacao/pagina-reparo-doacao';
+import { PaginaDetalhesUsuario } from './features/admin/pages/pagina-detalhes-usuario/pagina-detalhes-usuario';
+
 
 // Usuário
 import { PaginaDashboardUsuario } from './features/usuario/pages/pagina-dashboard-usuario/pagina-dashboard-usuario';
@@ -71,6 +74,20 @@ export const routes: Routes = [
         //canActivate: [perfilGuard],
         data: { perfisPermitidos: ['ADMINISTRADOR'] }
       },
+      {
+        path: 'admin/usuarios/:id',
+        component: PaginaDetalhesUsuario,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+        
+      {
+        path: 'admin/tecnicos/:id',
+        component: PaginaDetalhesTecnico,
+        //canActivate: [perfilGuard],
+        data: { perfisPermitidos: ['ADMINISTRADOR'] }
+      },
+
       {
         path: 'tecnico',
         component: PaginaDashboardTecnico,
